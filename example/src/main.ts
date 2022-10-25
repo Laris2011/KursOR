@@ -134,6 +134,7 @@ function _loop(time: number): void {
         ImGui.Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
 
         ImGui.Text("This is some useful text.");               // Display some text (you can use a format strings too)
+        ImGui.Text("This is some useful text 2.");
         ImGui.Checkbox("Demo Window", (value = show_demo_window) => show_demo_window = value);      // Edit bools storing our windows open/close state
         ImGui.Checkbox("Another Window", (value = show_another_window) => show_another_window = value);
 
