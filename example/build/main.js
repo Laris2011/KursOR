@@ -95,7 +95,7 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
             font = yield AddFontFromFileTTF("../imgui/misc/fonts/Roboto-Medium.ttf", 20);
             font = yield AddFontFromFileTTF("../imgui/misc/fonts/Roboto-Medium.ttf", 22);
             font = yield AddFontFromFileTTF("../imgui/misc/fonts/Roboto-Medium.ttf", 24);
-            font = yield AddFontFromFileTTF("../imgui/misc/fonts/Roboto-Medium.ttf", 32, null, ImGui.GetIO().Fonts.GetGlyphRangesCyrillic());
+            font = yield AddFontFromFileTTF("../imgui/misc/fonts/Roboto-Medium.ttf", 36, null, ImGui.GetIO().Fonts.GetGlyphRangesCyrillic());
             io.FontDefault = io.Fonts.Fonts[2];
 
             //font.FontConfig
