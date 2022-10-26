@@ -14,6 +14,7 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
     //inct
     var menustate = 0;
     var gradientstate = 0;
+    var rnb = 0;
     
     var __moduleName = context_1 && context_1.id;
     function LoadArrayBuffer(url) {
@@ -136,13 +137,28 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
             }
         });
     }
+
+    function rainbow(){
+        var rainbowState = Math.ceil(new Date().getMilliseconds()*20);
+        //console.log(rainbowState);
+        rainbowState %= 360;
+        console.log(rainbowState);
+        const r = [0];
+        const g = [0];
+        const b = [0];
+        ImGui.ColorConvertHSVtoRGB(rainbowState, 181, 255, r, g, b);
+        return new ImGui.Vec4(r[0], g[0], b[0], 1.0) //ImGui.COL32(clear_color.x* 0xff, clear_color.y* 0xff, clear_color.z* 0xff, 255)
+
+
+        
+    }
+ 
     // Main loop
     function _loop(time) {
         ImGui_Impl.NewFrame(time);
         ImGui.NewFrame();
 
         //main
-        
         let window_flags = 0;
             window_flags |= ImGui.WindowFlags.NoDecoration;
             window_flags |= ImGui.WindowFlags.NoMove;
@@ -162,7 +178,7 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
                 {
                     const p0 = new ImGui.Vec2(0, 0);//ImGui.GetCursorScreenPos();
                     const p1 = new ImGui.Vec2(p0.x + gradient_size.x, p0.y + gradient_size.y);
-                    const col_a = ImGui.GetColorU32(ImGui.COL32(74, 246, 255, 255));
+                    const col_a = rnb ? ImGui.GetColorU32(ImGui.COL32(rainbow().x,rainbow().y,rainbow().z,255)) : ImGui.GetColorU32(ImGui.COL32(clear_color.x* 0xff, clear_color.y* 0xff, clear_color.z* 0xff, 255));
                     const col_b = ImGui.GetColorU32(ImGui.COL32(255, 255, 255, 255));
                     draw_list.AddRectFilledMultiColor(p0, p1, col_a, col_a, col_b, col_b);
                     ImGui.InvisibleButton("##gradientbg2", gradient_size);
@@ -196,6 +212,7 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
             ImGui.Checkbox("Demo Window", (value = show_demo_window) => show_demo_window = value);
             ImGui.Checkbox("Another Window", (value = show_another_window) => show_another_window = value);
             ImGui.Checkbox("Gradient Drawable", (value = gradientstate) => gradientstate = value);
+            ImGui.Checkbox("Rainbow", (value = rnb) => rnb = value);
             ImGui.SliderFloat("float", (value = f) => f = value, 0.0, 1.0);
             ImGui.ColorEdit3("clear color", clear_color);
             if (ImGui.Button("Button"))
@@ -548,7 +565,7 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
             // Our state
             show_demo_window = false;
             show_another_window = false;
-            clear_color = new ImGui.Vec4(0.184, 0.902, 1, 1.00);
+            clear_color = new ImGui.Vec4(0.290, 0.945, 1, 1.00);
             memory_editor = new imgui_memory_editor_js_1.MemoryEditor();
             memory_editor.Open = false;
             show_sandbox_window = false;
