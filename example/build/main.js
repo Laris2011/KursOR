@@ -9,7 +9,11 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
             step((generator = generator.apply(thisArg, _arguments || [])).next());
         });
     };
-    var ImGui, ImGui_Impl, imgui_demo_js_1, imgui_memory_editor_js_1, font, show_demo_window, show_another_window, clear_color, memory_editor, show_sandbox_window, show_gamepad_window, show_movie_window, f, counter, done, source, image_urls, image_url, image_element, image_gl_texture, video_urls, video_url, video_element, video_gl_texture, video_w, video_h, video_time_active, video_time, video_duration;
+    var ImGui, ImGui_Impl, imgui_demo_js_1, imgui_memory_editor_js_1, font, show_demo_window, show_another_window, clear_color, memory_editor, show_sandbox_window, show_gamepad_window, show_movie_window, f, counter, Static, _static_map, demoshown, done, source, image_urls, image_url, image_element, image_gl_texture, video_urls, video_url, video_element, video_gl_texture, video_w, video_h, video_time_active, video_time, video_duration;
+    
+    //inct
+    var menustate = 0;
+    
     var __moduleName = context_1 && context_1.id;
     function LoadArrayBuffer(url) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -45,6 +49,25 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
             return ImGui.GetIO().Fonts.AddFontFromMemoryTTF(yield LoadArrayBuffer(url), size_pixels, font_cfg, glyph_ranges);
         });
     }
+    function HelpMarker(desc) {
+        ImGui.TextDisabled("(?)");
+        if (ImGui.IsItemHovered()) {
+            ImGui.BeginTooltip();
+            ImGui.PushTextWrapPos(ImGui.GetFontSize() * 35.0);
+            ImGui.TextUnformatted(desc);
+            ImGui.PopTextWrapPos();
+            ImGui.EndTooltip();
+        }
+    }
+    function UNIQUE(key) { return key; }
+    function STATIC(key, init) {
+        let value = _static_map.get(key);
+        if (value === undefined) {
+            _static_map.set(key, value = new Static(init));
+        }
+        return value;
+    }
+
     function _init() {
         return __awaiter(this, void 0, void 0, function* () {
             const EMSCRIPTEN_VERSION = `${ImGui.bind.__EMSCRIPTEN_major__}.${ImGui.bind.__EMSCRIPTEN_minor__}.${ImGui.bind.__EMSCRIPTEN_tiny__}`;
@@ -67,7 +90,17 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
             // - Read 'docs/FONTS.md' for more instructions and details.
             // - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
             io.Fonts.AddFontDefault();
-            font = yield AddFontFromFileTTF("../imgui/misc/fonts/Roboto-Medium.ttf", 16.0);
+            font = yield AddFontFromFileTTF("../imgui/misc/fonts/Roboto-Medium.ttf", 16);
+            font = yield AddFontFromFileTTF("../imgui/misc/fonts/Roboto-Medium.ttf", 18);
+            font = yield AddFontFromFileTTF("../imgui/misc/fonts/Roboto-Medium.ttf", 20);
+            font = yield AddFontFromFileTTF("../imgui/misc/fonts/Roboto-Medium.ttf", 22);
+            font = yield AddFontFromFileTTF("../imgui/misc/fonts/Roboto-Medium.ttf", 24);
+            font = yield AddFontFromFileTTF("../imgui/misc/fonts/Roboto-Medium.ttf", 32, null, ImGui.GetIO().Fonts.GetGlyphRangesCyrillic());
+            io.FontDefault = io.Fonts.Fonts[2];
+
+            //font.FontConfig
+            
+            
             // font = await AddFontFromFileTTF("../imgui/misc/fonts/Cousine-Regular.ttf", 15.0);
             // font = await AddFontFromFileTTF("../imgui/misc/fonts/DroidSans.ttf", 16.0);
             // font = await AddFontFromFileTTF("../imgui/misc/fonts/ProggyTiny.ttf", 10.0);
@@ -104,34 +137,57 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
     }
     // Main loop
     function _loop(time) {
-        // Poll and handle events (inputs, window resize, etc.)
-        // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
-        // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
-        // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application.
-        // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
-        // Start the Dear ImGui frame
         ImGui_Impl.NewFrame(time);
         ImGui.NewFrame();
-        // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
+
+        //main
+        
+        let window_flags = 0;
+            window_flags |= ImGui.WindowFlags.NoDecoration;
+            window_flags |= ImGui.WindowFlags.NoMove;
+            window_flags |= ImGui.WindowFlags.NoResize;
+            window_flags |= ImGui.WindowFlags.NoBackground;
+
+        let viewport = ImGui.GetMainViewport();
+        ImGui.SetNextWindowPos(viewport.WorkPos);
+        ImGui.SetNextWindowSize(viewport.WorkSize);
+
+        //let temp1 = ImGui.GetWindowSize().x;
+        if(ImGui.Begin("Example: Fullscreen window", null, window_flags)){
+            ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
+            ImGui.GetIO().FontGlobalScale = 3
+            ImGui.SetCursorPos(new ImGui.Vec2((ImGui.GetWindowSize().x - ImGui.CalcTextSize("КурсОР").x)*0.5+1, 26)); //ImGui.TextColored(new ImGui.Vec4(1.0, 0.0, 1.0, 1.0), "Pink");
+            ImGui.TextColored(new ImGui.Vec4(0.0, 0.0, 0.0, 1.0),"КурсОР");
+            ImGui.SetCursorPos(new ImGui.Vec2((ImGui.GetWindowSize().x - ImGui.CalcTextSize("КурсОР").x)*0.5, 25)); //ImGui.TextColored(new ImGui.Vec4(1.0, 0.0, 1.0, 1.0), "Pink");
+            ImGui.Text("КурсОР");
+            ImGui.GetIO().FontGlobalScale = 1;
+            ImGui.PopFont();
+        }
+        ImGui.End();
+
+
+        if (ImGui.IsKeyReleased(45)) {
+            demoshown = !demoshown;
+        }
         if (!done && show_demo_window) {
             done = /*ImGui.*/ imgui_demo_js_1.ShowDemoWindow((value = show_demo_window) => show_demo_window = value);
         }
-        // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
-        {
-            // static float f = 0.0f;
-            // static int counter = 0;
-            ImGui.Begin("Hello, world!"); // Create a window called "Hello, world!" and append into it.
-            ImGui.Text("This is some useful text."); // Display some text (you can use a format strings too)
-            ImGui.Text("This is some useful text 2."); // Display some text (you can use a format strings too)
-            ImGui.Checkbox("Demo Window", (value = show_demo_window) => show_demo_window = value); // Edit bools storing our windows open/close state
+        if(demoshown){
+            ImGui.Begin("Hello, world!");
+            ImGui.Text("This is some useful text.");
+            //ImGui.SetCursorPos(new ImGui.Vec2(100, 200));
+            ImGui.SetCursorPosX(100);
+            ImGui.Text("This is some useful text 2.");
+            ImGui.Checkbox("Demo Window", (value = show_demo_window) => show_demo_window = value);
             ImGui.Checkbox("Another Window", (value = show_another_window) => show_another_window = value);
-            ImGui.SliderFloat("float", (value = f) => f = value, 0.0, 1.0); // Edit 1 float using a slider from 0.0f to 1.0f
-            ImGui.ColorEdit3("clear color", clear_color); // Edit 3 floats representing a color
-            if (ImGui.Button("Button")) // Buttons return true when clicked (NB: most widgets return true when edited/activated)
+            ImGui.SliderFloat("float", (value = f) => f = value, 0.0, 1.0);
+            ImGui.ColorEdit3("clear color", clear_color);
+            if (ImGui.Button("Button"))
                 counter++;
             ImGui.SameLine();
             ImGui.Text(`counter = ${counter}`);
             ImGui.Text(`Application average ${(1000.0 / ImGui.GetIO().Framerate).toFixed(3)} ms/frame (${ImGui.GetIO().Framerate.toFixed(1)} FPS)`);
+            
             ImGui.Checkbox("Memory Editor", (value = memory_editor.Open) => memory_editor.Open = value);
             if (memory_editor.Open)
                 memory_editor.DrawWindow("Memory Editor", ImGui.bind.HEAP8.buffer);
@@ -465,9 +521,9 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
         execute: function () {
             font = null;
             // Our state
-            show_demo_window = true;
+            show_demo_window = false;
             show_another_window = false;
-            clear_color = new ImGui.Vec4(0.45, 0.55, 0.60, 1.00);
+            clear_color = new ImGui.Vec4(0.184, 0.902, 1, 1.00);
             memory_editor = new imgui_memory_editor_js_1.MemoryEditor();
             memory_editor.Open = false;
             show_sandbox_window = false;
@@ -476,6 +532,12 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
             /* static */ f = 0.0;
             /* static */ counter = 0;
             done = false;
+            Static = class Static {
+                constructor(value) {
+                    this.value = value;
+                    this.access = (value = this.value) => this.value = value;
+                }
+            };
             source = [
                 "ImGui.Text(\"Hello, world!\");",
                 "ImGui.SliderFloat(\"float\",",
