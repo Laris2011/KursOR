@@ -13,6 +13,7 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
     
     //inct
     var menustate = 0;
+    var gradientstate = 0;
     
     var __moduleName = context_1 && context_1.id;
     function LoadArrayBuffer(url) {
@@ -94,7 +95,7 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
             font = yield AddFontFromFileTTF("../imgui/misc/fonts/Roboto-Medium.ttf", 18);
             font = yield AddFontFromFileTTF("../imgui/misc/fonts/Roboto-Medium.ttf", 20);
             font = yield AddFontFromFileTTF("../imgui/misc/fonts/Roboto-Medium.ttf", 22);
-            font = yield AddFontFromFileTTF("../imgui/misc/fonts/Roboto-Medium.ttf", 24);
+            font = yield AddFontFromFileTTF("../imgui/misc/fonts/Roboto-Medium.ttf", 24); //npm run start-example-html
             font = yield AddFontFromFileTTF("../imgui/misc/fonts/Roboto-Medium.ttf", 36, null, ImGui.GetIO().Fonts.GetGlyphRangesCyrillic());
             io.FontDefault = io.Fonts.Fonts[2];
 
@@ -147,13 +148,27 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
             window_flags |= ImGui.WindowFlags.NoMove;
             window_flags |= ImGui.WindowFlags.NoResize;
             window_flags |= ImGui.WindowFlags.NoBackground;
+            window_flags |= ImGui.WindowFlags.NoBringToFrontOnFocus;
 
         let viewport = ImGui.GetMainViewport();
         ImGui.SetNextWindowPos(viewport.WorkPos);
         ImGui.SetNextWindowSize(viewport.WorkSize);
 
         //let temp1 = ImGui.GetWindowSize().x;
-        if(ImGui.Begin("Example: Fullscreen window", null, window_flags)){
+        if(ImGui.Begin("Fullscreen window", null, window_flags)){
+            if(gradientstate){
+                const draw_list = ImGui.GetWindowDrawList();
+                const gradient_size = viewport.WorkSize;//new ImGui.Vec2(ImGui.CalcItemWidth(), ImGui.GetFrameHeight());
+                {
+                    const p0 = new ImGui.Vec2(0, 0);//ImGui.GetCursorScreenPos();
+                    const p1 = new ImGui.Vec2(p0.x + gradient_size.x, p0.y + gradient_size.y);
+                    const col_a = ImGui.GetColorU32(ImGui.COL32(74, 246, 255, 255));
+                    const col_b = ImGui.GetColorU32(ImGui.COL32(255, 255, 255, 255));
+                    draw_list.AddRectFilledMultiColor(p0, p1, col_a, col_a, col_b, col_b);
+                    ImGui.InvisibleButton("##gradientbg2", gradient_size);
+                }
+            }
+            console.log("lol");
             ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
             ImGui.GetIO().FontGlobalScale = 3
             ImGui.SetCursorPos(new ImGui.Vec2((ImGui.GetWindowSize().x - ImGui.CalcTextSize("КурсОР").x)*0.5+1, 26)); //ImGui.TextColored(new ImGui.Vec4(1.0, 0.0, 1.0, 1.0), "Pink");
@@ -180,6 +195,7 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
             ImGui.Text("This is some useful text 2.");
             ImGui.Checkbox("Demo Window", (value = show_demo_window) => show_demo_window = value);
             ImGui.Checkbox("Another Window", (value = show_another_window) => show_another_window = value);
+            ImGui.Checkbox("Gradient Drawable", (value = gradientstate) => gradientstate = value);
             ImGui.SliderFloat("float", (value = f) => f = value, 0.0, 1.0);
             ImGui.ColorEdit3("clear color", clear_color);
             if (ImGui.Button("Button"))
@@ -262,8 +278,17 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
         const ctx = ImGui_Impl.ctx;
         if (ctx) {
             // ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-            ctx.fillStyle = `rgba(${clear_color.x * 0xff}, ${clear_color.y * 0xff}, ${clear_color.z * 0xff}, ${clear_color.w})`;
-            ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            //if(!gradientstate) {
+                ctx.fillStyle = `rgba(${clear_color.x * 0xff}, ${clear_color.y * 0xff}, ${clear_color.z * 0xff}, ${clear_color.w})`;
+                ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            /*}else{
+                const gradient = ctx.createLinearGradient(20, 0, 220, 0);
+                gradient.addColorStop(0, "green");
+                gradient.addColorStop(0.5, "cyan");
+                gradient.addColorStop(1, "green");
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            }*/
         }
         UpdateVideo();
         ImGui_Impl.RenderDrawData(ImGui.GetDrawData());
