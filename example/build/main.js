@@ -13,9 +13,15 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
     
     //inct
     var menustate = 0;
-    var gradientstate = 0;
+    var gradientstate = 1;
     var rnb = 0;
     
+    //bg
+    var image_src = "https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/bg1.png";
+    var image_texture;
+    var image_temp;
+
+
     var __moduleName = context_1 && context_1.id;
     function LoadArrayBuffer(url) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -131,6 +137,7 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
                 ImGui_Impl.Init(null);
             }
             StartUpImage();
+            StartUpMainImage();
             StartUpVideo();
             if (typeof (window) !== "undefined") {
                 window.requestAnimationFrame(_loop);
@@ -165,6 +172,7 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
             window_flags |= ImGui.WindowFlags.NoResize;
             window_flags |= ImGui.WindowFlags.NoBackground;
             window_flags |= ImGui.WindowFlags.NoBringToFrontOnFocus;
+            window_flags |= ImGui.WindowFlags.NoScrollWithMouse;
 
         let viewport = ImGui.GetMainViewport();
         ImGui.SetNextWindowPos(viewport.WorkPos);
@@ -181,14 +189,30 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
                     const col_a = rnb ? ImGui.GetColorU32(ImGui.COL32(rainbow().x,rainbow().y,rainbow().z,255)) : ImGui.GetColorU32(ImGui.COL32(clear_color.x* 0xff, clear_color.y* 0xff, clear_color.z* 0xff, 255));
                     const col_b = ImGui.GetColorU32(ImGui.COL32(255, 255, 255, 255));
                     draw_list.AddRectFilledMultiColor(p0, p1, col_a, col_a, col_b, col_b);
-                    ImGui.InvisibleButton("##gradientbg2", gradient_size);
+
+                    //ImGui.ImageButton(image_texture, new ImGui.Vec2(971, 991));
+                    //ImGui.InvisibleButton("##gradientbg2", gradient_size);
+
+                    //const pos = ImGui.GetCursorScreenPos();  //for tooltip, wip
+                    let aspect_ratio = new ImGui.Vec2(1/((ImGui.GetWindowSize().x) / 850), 1/((ImGui.GetWindowSize().y-99) / 866));
+
+                
+
+                    const uv_min = new ImGui.Vec2(0.0, 0.0); // Top-left               ---resize
+                    const uv_max = new ImGui.Vec2(aspect_ratio.y, aspect_ratio.y); // Lower-right 1.0 1.0
+                    const tint_col = new ImGui.Vec4(1.0, 1.0, 1.0, 1.0); // No tint
+                    const border_col = new ImGui.Vec4(1.0, 1.0, 1.0, 0.0); // 50% opaque white  a 0.5 -> 0.0
+                    ImGui.SetCursorPos(new ImGui.Vec2(((ImGui.GetWindowSize().x - (850/aspect_ratio.y))*0.5+1), 100));//
+                    ImGui.Image(image_texture, new ImGui.Vec2(850, 866), uv_min, uv_max, tint_col, border_col);
                 }
             }
-            console.log("lol");
+            
+            //console.log("lol");
             ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
-            ImGui.GetIO().FontGlobalScale = 3
+            ImGui.GetIO().FontGlobalScale = 3;
+            
             ImGui.SetCursorPos(new ImGui.Vec2((ImGui.GetWindowSize().x - ImGui.CalcTextSize("КурсОР").x)*0.5+1, 26)); //ImGui.TextColored(new ImGui.Vec4(1.0, 0.0, 1.0, 1.0), "Pink");
-            ImGui.TextColored(new ImGui.Vec4(0.0, 0.0, 0.0, 1.0),"КурсОР");
+            ImGui.TextColored(new ImGui.Vec4(0.0, 0.0, 0.0, 1.0),"КурсОР > " + (ImGui.GetWindowSize().y-99) + "/"+866 + "(" + ((ImGui.GetWindowSize().y-99) / 866) + ")");
             ImGui.SetCursorPos(new ImGui.Vec2((ImGui.GetWindowSize().x - ImGui.CalcTextSize("КурсОР").x)*0.5, 25)); //ImGui.TextColored(new ImGui.Vec4(1.0, 0.0, 1.0, 1.0), "Pink");
             ImGui.Text("КурсОР");
             ImGui.GetIO().FontGlobalScale = 1;
@@ -425,17 +449,53 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
             image_gl_texture = image_element; // HACK
         }
     }
+    function StartUpMainImage() {
+        if (typeof document !== "undefined") {
+            image_temp = document.createElement("img");
+            image_temp.crossOrigin = "anonymous";
+            image_temp.src = image_src;
+        }
+        const gl = ImGui_Impl.gl;
+        if (gl) {
+            const width = 972;
+            const height = 991;
+            const pixels = new Uint8Array(4 * width * height);
+            image_texture = gl.createTexture();
+            gl.bindTexture(gl.TEXTURE_2D, image_texture);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+            if (image_temp) {
+                image_temp.addEventListener("load", (event) => {
+                    if (image_temp) {
+                        gl.bindTexture(gl.TEXTURE_2D, image_texture);
+                        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image_temp);
+                    }
+                });
+            }
+        }
+        const ctx = ImGui_Impl.ctx;
+        if (ctx) {
+            image_texture = image_temp; // HACK
+        }
+    }
     function CleanUpImage() {
         const gl = ImGui_Impl.gl;
         if (gl) {
             gl.deleteTexture(image_gl_texture);
             image_gl_texture = null;
+            gl.deleteTexture(image_texture);
+            image_texture = null;
         }
         const ctx = ImGui_Impl.ctx;
         if (ctx) {
             image_gl_texture = null;
+            image_texture = null;
         }
         image_element = null;
+        image_temp = null;
     }
     function StartUpVideo() {
         if (typeof document !== "undefined") {
@@ -592,9 +652,12 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
                 "https://threejs.org/examples/textures/sprite.png",
                 "https://threejs.org/examples/textures/uv_grid_opengl.jpg",
             ];
+            image_src = "https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/bg1.png";
             image_url = image_urls[0];
             image_element = null;
             image_gl_texture = null;
+            image_texture = null;
+            image_temp = null;
             video_urls = [
                 "https://threejs.org/examples/textures/sintel.ogv",
                 "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
