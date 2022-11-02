@@ -165,6 +165,10 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
         ImGui_Impl.NewFrame(time);
         ImGui.NewFrame();
 
+        const style = ImGui.GetStyle();
+        style.WindowPadding.x = 0;
+        style.WindowPadding.y = 0;
+        //style.
         //main
         let window_flags = 0;
             window_flags |= ImGui.WindowFlags.NoDecoration;
@@ -175,8 +179,9 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
             window_flags |= ImGui.WindowFlags.NoScrollWithMouse;
 
         let viewport = ImGui.GetMainViewport();
-        ImGui.SetNextWindowPos(viewport.WorkPos);
-        ImGui.SetNextWindowSize(viewport.WorkSize);
+        
+        ImGui.SetNextWindowPos(new ImGui.Vec2(viewport.WorkPos.x-1, viewport.WorkPos.y-1)); //viewport.WorkPos
+        ImGui.SetNextWindowSize(new ImGui.Vec2(viewport.WorkSize.x+1, viewport.WorkSize.y+1)); //viewport.WorkSize
 
         //let temp1 = ImGui.GetWindowSize().x;
         if(ImGui.Begin("Fullscreen window", null, window_flags)){
