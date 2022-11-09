@@ -544,6 +544,7 @@ ImGui.TextWrapped(`В верхнее поле "Имя ряда" щелчком �
         if (ImGui.IsKeyReleased(45)) {
             demoshown = !demoshown;
         }
+        if (ImGui.IsKeyPressed(ImGui.GetKeyIndex(ImGui.Key.Escape))) menustate = 0;
         if (!done && show_demo_window) {
             done = /*ImGui.*/ imgui_demo_js_1.ShowDemoWindow((value = show_demo_window) => show_demo_window = value);
         }
