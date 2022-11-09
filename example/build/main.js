@@ -9,7 +9,7 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
             step((generator = generator.apply(thisArg, _arguments || [])).next());
         });
     };
-    var ImGui, ImGui_Impl, imgui_demo_js_1, imgui_memory_editor_js_1, font, show_demo_window, show_another_window, clear_color, memory_editor, show_sandbox_window, show_gamepad_window, show_movie_window, f, counter, Static, _static_map, demoshown, done, source, image_urls, image_url, image_element, image_gl_texture, video_urls, video_url, video_element, video_gl_texture, video_w, video_h, video_time_active, video_time, video_duration;
+    var ImGui, ImGui_Impl, imgui_demo_js_1, imgui_memory_editor_js_1, font, show_demo_window, show_another_window, clear_color, btn_color, memory_editor, show_sandbox_window, show_gamepad_window, show_movie_window, f, counter, Static, _static_map, demoshown, done, source, image_urls, image_url, image_element, image_gl_texture, video_urls, video_url, video_element, video_gl_texture, video_w, video_h, video_time_active, video_time, video_duration;
     
     //inct
     var menustate = 0;
@@ -21,6 +21,8 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
     var image_texture;
     var image_temp;
 
+    var cmodels = [false,false,false,false,false,false,false,false];
+    var testlol = false;
 
     var __moduleName = context_1 && context_1.id;
     function LoadArrayBuffer(url) {
@@ -81,6 +83,7 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
             const EMSCRIPTEN_VERSION = `${ImGui.bind.__EMSCRIPTEN_major__}.${ImGui.bind.__EMSCRIPTEN_minor__}.${ImGui.bind.__EMSCRIPTEN_tiny__}`;
             console.log("Emscripten Version", EMSCRIPTEN_VERSION);
             console.log("Total allocated space (uordblks) @ _init:", ImGui.bind.mallinfo().uordblks);
+            document.title = "КурсОР - Курс на Образование и Развитие";
             // Setup Dear ImGui context
             ImGui.CHECKVERSION();
             ImGui.CreateContext();
@@ -159,15 +162,62 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
 
         
     }
+
+    function DrawGradientButton(text, size, t){
+        let draw_list = ImGui.GetWindowDrawList();
+        let txt1 = text;
+        const gradient_size = size;
+          {
+            var p0 = ImGui.GetCursorScreenPos();
+            var io = ImGui.GetIO();
+            var ptemp = p0;
+            const p1 = new ImGui.Vec2(p0.x + gradient_size.x/2, p0.y + gradient_size.y);
+
+            
+
+            const p21 = new ImGui.Vec2(p0.x + gradient_size.x/2, p0.y);
+            const p22 = new ImGui.Vec2(p0.x + gradient_size.x, p0.y + gradient_size.y);
+            const col_a = ImGui.GetColorU32(ImGui.COL32(255, 255, 255, 255));
+            var dx = 1;
+            if(io.MousePos.x >= p0.x && io.MousePos.x <= p0.x + gradient_size.x && io.MousePos.y >= p0.y && io.MousePos.y <= p0.y + gradient_size.y){
+                dx = 1.1;
+            }
+            const col_b = ImGui.GetColorU32(ImGui.COL32(clear_color.x* 0xff/dx, clear_color.y* 0xff/dx, clear_color.z* 0xff/dx, 255));
+            draw_list.AddRectFilledMultiColor(p0, p1, col_a, col_b, col_b, col_a); 
+            draw_list.AddRectFilledMultiColor(p21, p22, col_b, col_a, col_a, col_b);
+
+            ImGui.PushStyleColor(ImGui.Col.Button, new ImGui.Vec4(0,0,0,0));
+            ImGui.PushStyleColor(ImGui.Col.ButtonHovered, new ImGui.Vec4(0,0,0,0));
+            ImGui.PushStyleColor(ImGui.Col.ButtonActive, new ImGui.Vec4(0,0,0,0));
+
+            ImGui.PushStyleColor(ImGui.Col.Text, new ImGui.Vec4(19/255,148/255,197/255,255));
+            ImGui.GetIO().FontGlobalScale = 0.7;
+            if(text[0] == "$") {
+                ImGui.GetIO().FontGlobalScale = 0.4;// text[0] = "";
+                txt1 = "Свернуть";
+            }
+            
+            ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
+            if(ImGui.Button(txt1,gradient_size)) {
+                if(t != null || t!= "lol") t();
+            };
+            ImGui.GetIO().FontGlobalScale = 1;
+            ImGui.PopFont();
+            ImGui.PopStyleColor(4);
+            
+        }
+    }
  
     // Main loop
+    //npm run start-example-html
     function _loop(time) {
         ImGui_Impl.NewFrame(time);
         ImGui.NewFrame();
 
         const style = ImGui.GetStyle();
-        style.WindowPadding.x = 0;
-        style.WindowPadding.y = 0;
+        style.WindowPadding.x = 10;
+        style.WindowPadding.y = 10;
+        style.WindowRounding = 8;
         //style.
         //main
         let window_flags = 0;
@@ -202,26 +252,291 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
                     let aspect_ratio = new ImGui.Vec2(1/((ImGui.GetWindowSize().x) / 850), 1/((ImGui.GetWindowSize().y-99) / 866));
 
                 
+                   if(menustate == 0){
+                        const uv_min = new ImGui.Vec2(0.0, 0.0); // Top-left               ---resize
+                        const uv_max = new ImGui.Vec2(aspect_ratio.y, aspect_ratio.y); // Lower-right 1.0 1.0
+                        const tint_col = new ImGui.Vec4(1.0, 1.0, 1.0, 1.0); // No tint
+                        const border_col = new ImGui.Vec4(1.0, 1.0, 1.0, 0.0); // 50% opaque white  a 0.5 -> 0.0
+                        ImGui.SetCursorPos(new ImGui.Vec2(((ImGui.GetWindowSize().x - (850/aspect_ratio.y))*0.5+1), 100));//
+                        ImGui.Image(image_texture, new ImGui.Vec2(850, 866), uv_min, uv_max, tint_col, border_col);
 
-                    const uv_min = new ImGui.Vec2(0.0, 0.0); // Top-left               ---resize
-                    const uv_max = new ImGui.Vec2(aspect_ratio.y, aspect_ratio.y); // Lower-right 1.0 1.0
-                    const tint_col = new ImGui.Vec4(1.0, 1.0, 1.0, 1.0); // No tint
-                    const border_col = new ImGui.Vec4(1.0, 1.0, 1.0, 0.0); // 50% opaque white  a 0.5 -> 0.0
-                    ImGui.SetCursorPos(new ImGui.Vec2(((ImGui.GetWindowSize().x - (850/aspect_ratio.y))*0.5+1), 100));//
-                    ImGui.Image(image_texture, new ImGui.Vec2(850, 866), uv_min, uv_max, tint_col, border_col);
+                        ImGui.GetIO().FontGlobalScale = 1;
+                        ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
+                        ImGui.SetCursorPos(new ImGui.Vec2((ImGui.GetWindowSize().x - ImGui.CalcTextSize("КурсОР").x)*0.5+1, 26)); //ImGui.TextColored(new ImGui.Vec4(1.0, 0.0, 1.0, 1.0), "Pink");
+                        ImGui.TextColored(new ImGui.Vec4(0.0, 0.0, 0.0, 1.0),"КурсОР");
+                        ImGui.SetCursorPos(new ImGui.Vec2((ImGui.GetWindowSize().x - ImGui.CalcTextSize("КурсОР").x)*0.5, 25)); //ImGui.TextColored(new ImGui.Vec4(1.0, 0.0, 1.0, 1.0), "Pink");
+                        ImGui.Text("КурсОР");
+                        if (ImGui.IsItemHovered()) {
+                            style.FrameRounding = 0;
+                            ImGui.PushStyleColor(ImGui.Col.Border, new ImGui.Vec4(19/255,148/255,197/255,255));
+                            ImGui.PushStyleColor(ImGui.Col.PopupBg, ImGui.GetColorU32(ImGui.COL32(clear_color.x* 0xff, clear_color.y* 0xff, clear_color.z* 0xff, 255)));
+                            ImGui.PushStyleColor(ImGui.Col.Text, new ImGui.Vec4(19/255,148/255,197/255,255));
+                            ImGui.SetTooltip("Курс на Образование и Развитие");
+                            ImGui.PopStyleColor(3); //2
+                        }
+                        //ImGui.GetIO().FontGlobalScale = 1;
+                        
+
+                        var changecolors = () => {
+                            ImGui.PushStyleColor(ImGui.Col.Button, new ImGui.Vec4(0,0,0,0));
+                            ImGui.PushStyleColor(ImGui.Col.ButtonHovered, new ImGui.Vec4(0,0,0,0)); //50
+                            ImGui.PushStyleColor(ImGui.Col.ButtonActive, new ImGui.Vec4(0,0,0,0));
+                            ImGui.PushStyleColor(ImGui.Col.Text, new ImGui.Vec4(0,0,0,0));
+                        };
+                        style.FrameRounding = 100;
+                        style.PopupBorderSize = 3;
+                        changecolors();
+                        ImGui.SetCursorPos(new ImGui.Vec2(((ImGui.GetWindowSize().x)*0.5) - (100/ aspect_ratio.y) + 2, 100));
+                        if(ImGui.Button("Компьютерное моделирование", new ImGui.Vec2(200 / aspect_ratio.y, 200/ aspect_ratio.y))) menustate = 1;
+                        ImGui.PopStyleColor(4);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.PushStyleColor(ImGui.Col.Border, new ImGui.Vec4(19/255,148/255,197/255,255));
+                            ImGui.PushStyleColor(ImGui.Col.PopupBg, ImGui.GetColorU32(ImGui.COL32(clear_color.x* 0xff, clear_color.y* 0xff, clear_color.z* 0xff, 255)));
+                            ImGui.PushStyleColor(ImGui.Col.Text, new ImGui.Vec4(19/255,148/255,197/255,255));
+                            ImGui.SetTooltip("Компьютерное моделирование");
+                            ImGui.PopStyleColor(3); //2
+                        }
+
+                        changecolors();
+                        ImGui.SetCursorPos(new ImGui.Vec2(((ImGui.GetWindowSize().x)*0.5) - (100/ aspect_ratio.y) + 2 + (850/3.4/aspect_ratio.y), 100 + 150/aspect_ratio.y));
+                        if(ImGui.Button("Информационные технологии в обществе", new ImGui.Vec2(200 / aspect_ratio.y, 200/ aspect_ratio.y))) menustate = 2;
+                        ImGui.PopStyleColor(4);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.PushStyleColor(ImGui.Col.Border, new ImGui.Vec4(19/255,148/255,197/255,255));
+                            ImGui.PushStyleColor(ImGui.Col.PopupBg, ImGui.GetColorU32(ImGui.COL32(clear_color.x* 0xff, clear_color.y* 0xff, clear_color.z* 0xff, 255)));
+                            ImGui.PushStyleColor(ImGui.Col.Text, new ImGui.Vec4(19/255,148/255,197/255,255));
+                            ImGui.SetTooltip("Информационные технологии в обществе");
+                            ImGui.PopStyleColor(3); //2
+                        }
+                        changecolors();
+                        ImGui.SetCursorPos(new ImGui.Vec2(((ImGui.GetWindowSize().x)*0.5) - (100/ aspect_ratio.y) - 2 - (850/4.3/aspect_ratio.y), 100 + 280/aspect_ratio.y));
+                        if(ImGui.Button("Основы веб-конструирования", new ImGui.Vec2(200 / aspect_ratio.y, 200/ aspect_ratio.y))) menustate = 3;
+                        ImGui.PopStyleColor(4);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.PushStyleColor(ImGui.Col.Border, new ImGui.Vec4(19/255,148/255,197/255,255));
+                            ImGui.PushStyleColor(ImGui.Col.PopupBg, ImGui.GetColorU32(ImGui.COL32(clear_color.x* 0xff, clear_color.y* 0xff, clear_color.z* 0xff, 255)));
+                            ImGui.PushStyleColor(ImGui.Col.Text, new ImGui.Vec4(19/255,148/255,197/255,255));
+                            ImGui.SetTooltip("Основы веб-конструирования");
+                            ImGui.PopStyleColor(3); //2
+                        }
+                        changecolors();
+                        ImGui.SetCursorPos(new ImGui.Vec2(((ImGui.GetWindowSize().x)*0.5) - (100/ aspect_ratio.y) + 2 + (850/4/aspect_ratio.y) - 30/aspect_ratio.y, 100 + 430/aspect_ratio.y));
+                        if(ImGui.Button("Введение в ООП", new ImGui.Vec2(200 / aspect_ratio.y, 200/ aspect_ratio.y))) menustate = 4;
+                        ImGui.PopStyleColor(4);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.PushStyleColor(ImGui.Col.Border, new ImGui.Vec4(19/255,148/255,197/255,255));
+                            ImGui.PushStyleColor(ImGui.Col.PopupBg, ImGui.GetColorU32(ImGui.COL32(clear_color.x* 0xff, clear_color.y* 0xff, clear_color.z* 0xff, 255)));
+                            ImGui.PushStyleColor(ImGui.Col.Text, new ImGui.Vec4(19/255,148/255,197/255,255));
+                            ImGui.SetTooltip("Введение в ООП");
+                            ImGui.PopStyleColor(3); //2
+                        }
+                        changecolors();
+                        ImGui.SetCursorPos(new ImGui.Vec2(((ImGui.GetWindowSize().x)*0.5) - (100/ aspect_ratio.y) - 2 - (850/4.3/aspect_ratio.y) - 30/aspect_ratio.y, 100 + 580/aspect_ratio.y));
+                        if(ImGui.Button("Авторы", new ImGui.Vec2(200 / aspect_ratio.y, 200/ aspect_ratio.y))) menustate = 5;
+                        ImGui.PopStyleColor(4);
+                        if (ImGui.IsItemHovered()) {
+                            ImGui.PushStyleColor(ImGui.Col.Border, new ImGui.Vec4(19/255,148/255,197/255,255));
+                            ImGui.PushStyleColor(ImGui.Col.PopupBg, ImGui.GetColorU32(ImGui.COL32(clear_color.x* 0xff, clear_color.y* 0xff, clear_color.z* 0xff, 255)));
+                            ImGui.PushStyleColor(ImGui.Col.Text, new ImGui.Vec4(19/255,148/255,197/255,255));
+                            ImGui.SetTooltip("Авторы");
+                            ImGui.PopStyleColor(3); //2
+                        }
+
+
+
+                        style.FrameRounding = 0;
+                        //ImGui.PopStyleColor(5);
+                        ImGui.PopFont();
+                   }
+                   if(menustate == 1) {
+                    ImGui.GetIO().FontGlobalScale = 1;
+                    ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
+                    ImGui.SetCursorPos(new ImGui.Vec2((ImGui.GetWindowSize().x - ImGui.CalcTextSize("Компьютерное моделирование").x)*0.5+1, 26)); //ImGui.TextColored(new ImGui.Vec4(1.0, 0.0, 1.0, 1.0), "Pink");
+                    ImGui.TextColored(new ImGui.Vec4(0.0, 0.0, 0.0, 1.0),"Компьютерное моделирование");
+                    ImGui.SetCursorPos(new ImGui.Vec2((ImGui.GetWindowSize().x - ImGui.CalcTextSize("Компьютерное моделирование").x)*0.5, 25)); //ImGui.TextColored(new ImGui.Vec4(1.0, 0.0, 1.0, 1.0), "Pink");
+                    if(ImGui.Text("Компьютерное моделирование")) menustate = 0;
+
+
+                    var s1 = ImGui.GetStyle();
+                    //s1.childPadding
+                    //s1.WindowPadding.y = 30;
+
+                    draw_list.AddRectFilled(new ImGui.Vec2(ImGui.GetWindowSize().x/5 - 30, 50 + ImGui.CalcTextSize("AWG").y), new ImGui.Vec2(ImGui.GetWindowSize().x*4 / 5 + 30, ImGui.GetWindowSize().y), ImGui.COL32(255, 255, 255, 255));
+                    //draw_list.AddRect(new ImGui.Vec2(ImGui.GetWindowSize().x/5, 50 + ImGui.CalcTextSize("AWG").y), new ImGui.Vec2(ImGui.GetWindowSize().x* 4/5, 50 + ImGui.GetWindowSize().y), ImGui.COL32(255, 255, 255, 255));
+                    ImGui.SetCursorPos(new ImGui.Vec2(ImGui.GetWindowSize().x/5, 60 + ImGui.CalcTextSize("AWG").y));
+                    {
+                        let window_flags = ImGui.WindowFlags.None;
+                        window_flags |= ImGui.WindowFlags.NoBackground;
+                        //ImGui.PushStyleVar(ImGui.StyleVar.ChildRounding, 5.0);
+                        ImGui.PushStyleColor(ImGui.Col.ChildBg, ImGui.COL32(255, 255, 255, 255));
+                        ImGui.PushStyleColor(ImGui.Col.Text, ImGui.COL32(0, 0, 0, 255));
+                
+                        ImGui.BeginChild("Child", new ImGui.Vec2(ImGui.GetWindowSize().x * 4/5 - ImGui.GetWindowSize().x/5, ImGui.GetWindowSize().y - 50 - ImGui.CalcTextSize("AWG").y), false, ImGui.WindowFlags.None);
+                        /* if (ImGui.BeginTable("split", 2, ImGui.TableFlags.Resizable | ImGui.TableFlags.NoSavedSettings)) {
+                            for (let i = 0; i < 10; i++) {
+                                const buf = `${i.toString().padStart(3, "0")}`;
+                                ImGui.TableNextColumn();
+                                ImGui.Button(buf, new ImGui.Vec2(-1.175494e-38, 0.0));
+                            }
+                            ImGui.EndTable();
+                        } */
+                        
+                        /* for (let i = 0; i < 5; i++) {
+                          DrawGradientButton("test" + i, new ImGui.Vec2(ImGui.GetWindowSize().x, 70), () => {
+                            console.log(i);
+                            //ImGui.Button("test" + i);
+                        });
+                        } */
+                        ImGui.GetIO().FontGlobalScale = 0.3;
+                        DrawGradientButton("Модели и формы их представления", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
+                            cmodels[0] = !cmodels[0];
+                        });
+                        if(cmodels[0]){ 
+                            ImGui.GetIO().FontGlobalScale = 0.5;
+                            ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
+                            ImGui.TextWrapped("Модель - объект или процесс, который для различных целей рассматривается вместо другого объекта или процесса. На данный момент широко распространены компьютерные модели, представляющие собой информационную модель в виде файла на компьютерном носителе и ее изображение на экране компьютера.\nСоздание и использование моделей для решения научных и практических задач называется моделированием. ");
+                            ImGui.GetIO().FontGlobalScale = 1;
+
+                            DrawGradientButton("$Свернуть", new ImGui.Vec2(100, 25), ()=>{
+                                cmodels[0] = !cmodels[0];
+                            });
+                        }
+
+
+                        DrawGradientButton("Цели компьютерного моделирования", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
+                            cmodels[1] = !cmodels[1];
+                        });
+                        if(cmodels[1]){ 
+                            DrawGradientButton("$Свернуть", new ImGui.Vec2(100, 25), ()=>{
+                                cmodels[1] = !cmodels[1];
+                            });
+                        }
+                        DrawGradientButton("Современное моделирование", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
+                            cmodels[2] = !cmodels[2];
+                        });
+                        if(cmodels[2]){ 
+                            ImGui.GetIO().FontGlobalScale = 0.5;
+                            ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
+                            ImGui.TextWrapped("Моделирование в научных исследованиях стало применяться еще в глубокой древности и постепенно захватывало все новые области научных знаний: техническое конструирование, строительство и архитектуру, астрономию, физику, химию, биологию и, наконец, общественные науки. Большие успехи и признание практически во всех отраслях современной науки принес методу моделирования ХХ в.\n\nАктуальность компьютерного моделирования состоит в том, что методами компьютерного моделирования пользуются специалисты практически всех отраслей и областей науки и техники - от истории до космонавтики, поскольку с их помощью можно прогнозировать и даже имитировать явления, события или проектируемые предметы в заранее заданных параметрах.\n\nВ современном моделировании реализуется системных подход, состоящий в том, что моделируемый объект представляется в модели как система, т.е. совокупности объектов. Элементы системы могут быть естественными (существующие и просто выделяемые) и искусственными объектами (несуществующие условные единицы).\nМатематическая модель системы называется динамической, если она учитывает изменение времени.\n\nПод компьютерным моделированием будем понимать процесс построения, изучения и применения моделей, объектов, изучаемых в технике, медицине, искусстве и других областях деятельности людей, с помощью компьютеров и компьютерных устройств.\nСтоит также отметить, что на данный момент широкое распространение получает трехмерное моделирование. Заключается оно в том, что необходимый объект представляется в виде трехмерной модели. Эта технология получила широкое распространение в современной архитектуре и 3D-печати, а также в киноиндустрии. Например, архитектры создают компьютерные модели городов или отдельных райнов, монтажеры создают невероятные спецэффекты для фильмов, 3D-принтер на основе загруженной в него модели создает физический предмет. ");
+                            ImGui.GetIO().FontGlobalScale = 1;
+
+                            DrawGradientButton("$Свернуть", new ImGui.Vec2(100, 25), ()=>{
+                                cmodels[2] = !cmodels[2];
+                            });
+                        };
+                        DrawGradientButton("Элементы построения динамических моделей систем", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
+                            cmodels[3] = !cmodels[3];
+                        });
+                        if(cmodels[3]){ 
+                            DrawGradientButton("$Свернуть", new ImGui.Vec2(100, 25), ()=>{
+                                cmodels[3] = !cmodels[3];
+                            });
+                        }
+                        DrawGradientButton("Метод Монте-Карло", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
+                            cmodels[4] = !cmodels[4];
+                        });
+                        if(cmodels[4]){ 
+
+                            ImGui.GetIO().FontGlobalScale = 0.5;
+                            ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
+                            ImGui.TextWrapped(`Метод Монте-Карло, названный в честь одного из самых знаменитых казино мира, основан на использовании генератора случайных чисел. Также значения генератора случайных чисел называют псевдослучайными числами, поскольку получены они были посредством строгих математических методов и, следовательно, они являются предсказуемыми.
+\nНа языке PascalABC генератор случайных чисел реализован в стандартной функции random().
+В электронных таблицах MS Excel генератор случайных чисел реализован в функциях СЛЧИС() и СЛУЧМЕЖДУ().
+\nРассмотреть метод Монте-Карло можно на примере задачи определения площади некоторой плоской фигуры.
+Пусть имеется плоская фигура, которая находится внутри прямоугольника (будем называть его базовым) с известной площадью S. Засыплем мысленно прямоугольник тончайшем слоем песка. Если подсчитать общее число песчинок n и число k тех песчинок, которые попали на фигуру, то приближенно площадь фигуры можно считать по формуле C = S * k : n, где С – площадь фигуры.
+Таким образом метод Монте-Карло освобождает нас от необходимости самим разбрасывать и подсчитывать песчинки. Рассмотрим суть метода Монте-Карло на примере задачи определения площади некоторой плоской фигуры. Это приложение метода называют геометрическим методом Монте-Карло.
+Пусть имеется плоская фигура, которая находится внутри пря¬моугольника с известной площадью S0. `);
+
+                            ImGui.TextWrapped(`Засыплем мысленно прямоугольник тончайшим слоем песка. Прямоугольник с известной площадью в геометрическом методе Монте-Карло будем называть базовым. Если посчитать общее число n песчинок и число k тех песчинок, которые попали на фигуру, то приближенно площадь фигуры можно считать по формуле: `);
+                            ImGui.GetIO().FontGlobalScale = 1;
+                            DrawGradientButton("$Свернуть", new ImGui.Vec2(100, 25), ()=>{
+                                cmodels[4] = !cmodels[4];
+                            });
+                        }
+                        DrawGradientButton("Моделирование динамики численности популяций", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
+                            cmodels[5] = !cmodels[5];
+                        });
+                        if(cmodels[5]){ 
+                            ImGui.GetIO().FontGlobalScale = 0.5;
+                            ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
+                            ImGui.TextWrapped(`Для описания динамики изменения численности популяций ученые используют несколько математических моделей. Для двух популяций используются модели взаимодействия двух видов. Среди них модель «хищник-жертва», модель конкуренции двух видов за ресурсы питания, модели взаимовыгодного взаимодействия (симбиоза). `);
+                            ImGui.TextWrapped(`\nЗатычка\n`);
+ImGui.TextWrapped(`В электронных таблицах создадим комплексную компьютерную модель динамики численности четырех популяций, рассмотренных ранее.
+Для расчета численности популяции с неограниченным ростом используем формулу
+x(1) = (1 + a)x(0).
+Для популяции с ограниченным ростом используем формулу
+x(1) = x(0) + (a – bx(0))x(0).
+Для популяции с минимальной критической численностью используем формулу
+x(1) = x(0) + (a – bx(0))·(x(0) – L).
+Для популяции с критической численностью и отловом особей используем формулу
+x(1) = x(0) + (a – bx(0))·(x(0) – L) – Z.
+В исходных данных нужно задать значения параметров, записанных в правых частях этих формул.
+Данные компьютерной расчетной модели разместим по схеме примера: `);
+
+ImGui.TextWrapped(`Вводим формулы
+A10: =A4/A5 A12: 0
+В ячейки B12:E12 вводим формулу
+=$A$3
+В следующей строке
+A13: =A12+1
+В ячейки B13:E13 нужно ввести правые части четырех расчетных формул. Значение x(0) для формулы в каждом столбце берется из предыдущей строки.
+B13: = (1 + $A$4)*B12
+C13: = C12+($A$4-$A$5*C12)*C12
+D13: =D12+($A$4—$A$5*D12)*(D12—$A$6)
+E13: =E12+($A$4—$A$5*E12)* [1]
+(E12—$A$6)—$A$7
+Формулы моделей требуют доработки.
+Численность популяции в модели неограниченного роста растет очень быстро. Поэтому ограниченные численности остальных трех популяций на совместной диаграмме становятся практически незаметными.
+Чтобы избежать такого эффекта, искусственно ограничим численность в первой модели величиной
+ПЧ =1,1*$A$10,
+пользуясь тем, что в ячейке A10 вычислен предел численности популяции с ограниченным ростом. Для создания ограничения используем функцию ЕСЛИ() и в ячейку B13 вместо формулы модели неограниченного роста ФОРМН введем новую формулу по схеме
+=ЕСЛИ(ФОРМН(ПЧ; ФОРМН; ПЧ).
+Формулы остальных трех моделей в ячейках расчетной таблицы могут выдавать отрицательные значения численности популяций, что нелогично.
+Поэтому вместо формул ФОРМ этих моделей в ячейки С13:E13 введем новые формулы по схеме
+=ЕСЛИ(ФОРМ>0; ФОРМ; 0).
+Формулами диапазона A13:E13 таблица заполняется вниз до строки 47 включительно. Затем надо вывести на лист диаграмму с четырьмя графиками моделей.
+Выделяем диапазон A12:E47 в расчетной таблице, и на лист рабочей книги вставляем точечную диаграмму. Вводим название диаграммы «Динамика численности популяций». В нижнюю часть диаграммы выводится Легенда. `);
+
+ImGui.TextWrapped(`Осталось поменять имена элементов диаграммы. Щелкаем по диаграмме правой клавишей мыши и в контекстном меню выбираем пункт "Выбрать данные …". Появляется диалоговое окно "Выбор источника данных". `);
+ImGui.TextWrapped(`В диалоговом окне слева выделяем строку "Ряд1" и щелкаем по кнопке "Изменить". Появляется диалоговое окно "Изменение ряда". `);
+ImGui.TextWrapped(`В верхнее поле "Имя ряда" щелчком по ячейке B11 вводим ссылку на заголовок второго столбца. Нажимаем кнопку OK. Имена остальных рядов изменяем аналогично. `);
+                            
+                            ImGui.GetIO().FontGlobalScale = 1;
+                            DrawGradientButton("$Свернуть", new ImGui.Vec2(100, 25), ()=>{
+                                cmodels[5] = !cmodels[5];
+                            });
+                        }
+
+                        DrawGradientButton("Teория", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
+                            cmodels[6] = !cmodels[6];
+                        });
+                        if(cmodels[6]){ 
+                            DrawGradientButton("$Свернуть", new ImGui.Vec2(100, 25), ()=>{
+                                cmodels[6] = !cmodels[6];
+                            });
+                        }
+                        DrawGradientButton("Тесты", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
+                            cmodels[7] = !cmodels[7];
+                        });
+                        if(cmodels[7]){ 
+                            DrawGradientButton("$Свернуть", new ImGui.Vec2(100, 25), ()=>{
+                                cmodels[7] = !cmodels[7];
+                            });
+                        }
+                        DrawGradientButton("Назад", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
+                            menustate = 0;
+                        });
+                        ImGui.EndChild();
+                        ImGui.PopStyleColor();
+                        //ImGui.PopStyleVar();
+                    }
+                   }
+                   ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[2]);
+                   //ImGui.GetIO().FontGlobalScale = 0.7;
+                   //io.Fonts.Fonts[2];
                 }
             }
             
-            //console.log("lol");
-            ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
-            ImGui.GetIO().FontGlobalScale = 3;
-            
-            ImGui.SetCursorPos(new ImGui.Vec2((ImGui.GetWindowSize().x - ImGui.CalcTextSize("КурсОР").x)*0.5+1, 26)); //ImGui.TextColored(new ImGui.Vec4(1.0, 0.0, 1.0, 1.0), "Pink");
-            ImGui.TextColored(new ImGui.Vec4(0.0, 0.0, 0.0, 1.0),"КурсОР > " + (ImGui.GetWindowSize().y-99) + "/"+866 + "(" + ((ImGui.GetWindowSize().y-99) / 866) + ")");
-            ImGui.SetCursorPos(new ImGui.Vec2((ImGui.GetWindowSize().x - ImGui.CalcTextSize("КурсОР").x)*0.5, 25)); //ImGui.TextColored(new ImGui.Vec4(1.0, 0.0, 1.0, 1.0), "Pink");
-            ImGui.Text("КурсОР");
-            ImGui.GetIO().FontGlobalScale = 1;
-            ImGui.PopFont();
         }
         ImGui.End();
 
@@ -235,6 +550,7 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
         if(demoshown){
             ImGui.Begin("Hello, world!");
             ImGui.Text("This is some useful text.");
+            
             //ImGui.SetCursorPos(new ImGui.Vec2(100, 200));
             ImGui.SetCursorPosX(100);
             ImGui.Text("This is some useful text 2.");
@@ -245,25 +561,22 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
             ImGui.SliderFloat("float", (value = f) => f = value, 0.0, 1.0);
             ImGui.ColorEdit3("clear color", clear_color);
             if (ImGui.Button("Button"))
-                counter++;
+                menustate++;
+            if(menustate >=6) menustate = 0;
             ImGui.SameLine();
-            ImGui.Text(`counter = ${counter}`);
+            ImGui.Text(`menustate = ${menustate}`);
             ImGui.Text(`Application average ${(1000.0 / ImGui.GetIO().Framerate).toFixed(3)} ms/frame (${ImGui.GetIO().Framerate.toFixed(1)} FPS)`);
             
+            DrawGradientButton("test", new ImGui.Vec2(1000,100),null);
+            DrawGradientButton("а на русском?", new ImGui.Vec2(1000,70),null);
+
             ImGui.Checkbox("Memory Editor", (value = memory_editor.Open) => memory_editor.Open = value);
             if (memory_editor.Open)
                 memory_editor.DrawWindow("Memory Editor", ImGui.bind.HEAP8.buffer);
             const mi = ImGui.bind.mallinfo();
-            // ImGui.Text(`Total non-mmapped bytes (arena):       ${mi.arena}`);
-            // ImGui.Text(`# of free chunks (ordblks):            ${mi.ordblks}`);
-            // ImGui.Text(`# of free fastbin blocks (smblks):     ${mi.smblks}`);
-            // ImGui.Text(`# of mapped regions (hblks):           ${mi.hblks}`);
-            // ImGui.Text(`Bytes in mapped regions (hblkhd):      ${mi.hblkhd}`);
             ImGui.Text(`Max. total allocated space (usmblks):  ${mi.usmblks}`);
-            // ImGui.Text(`Free bytes held in fastbins (fsmblks): ${mi.fsmblks}`);
             ImGui.Text(`Total allocated space (uordblks):      ${mi.uordblks}`);
             ImGui.Text(`Total free space (fordblks):           ${mi.fordblks}`);
-            // ImGui.Text(`Topmost releasable block (keepcost):   ${mi.keepcost}`);
             if (ImGui.ImageButton(image_gl_texture, new ImGui.Vec2(48, 48))) {
                 // show_demo_window = !show_demo_window;
                 image_url = image_urls[(image_urls.indexOf(image_url) + 1) % image_urls.length];
@@ -303,6 +616,8 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
             }
             ImGui.End();
         }
+
+        
         // 3. Show another simple window.
         if (show_another_window) {
             ImGui.Begin("Another Window", (value = show_another_window) => show_another_window = value, ImGui.WindowFlags.AlwaysAutoResize);
@@ -311,6 +626,9 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
                 show_another_window = false;
             ImGui.End();
         }
+
+        
+
         ImGui.EndFrame();
         // Rendering
         ImGui.Render();
