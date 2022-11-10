@@ -342,7 +342,7 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
         ImGui.PushStyleColor(ImGui.Col.ButtonHovered, /*(ImGui.Vec4)*/ ImGui.Color.HSV(187/365, 0.635, 0.9));
         ImGui.PushStyleColor(ImGui.Col.ButtonActive, /*(ImGui.Vec4)*/ ImGui.Color.HSV(187/365, 0.635, 1));
         ImGui.PushStyleColor(ImGui.Col.Text, /*(ImGui.Vec4)*/ ImGui.Color.HSV(187/365, 0.635, 0.7));  
-        ImGui.GetIO().FontGlobalScale = 0.6; 
+        ImGui.GetIO().FontGlobalScale = 0.5; 
         ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
         if(ImGui.Button(text,new ImGui.Vec2(ImGui.GetWindowSize().x,25))) window.open(href);
         ImGui.GetIO().FontGlobalScale = 1;
