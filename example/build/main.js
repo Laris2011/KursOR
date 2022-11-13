@@ -196,7 +196,8 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
             createIMG("https://raw.githubusercontent.com/HOLLYCARROT/site/main/pages/styles/img/%D0%9B%D0%B5%D0%B3%D0%B5%D0%BD%D0%B4%D0%B0.jpg",0,[1200,720]);//легенда
             createIMG("https://raw.githubusercontent.com/HOLLYCARROT/site/main/pages/styles/img/%D0%92%D1%8B%D0%B1%D0%BE%D1%80%20%D0%B8%D1%81%D1%82%D0%BE%D1%87%D0%BD%D0%B8%D0%BA%D0%B0%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85.jpg",0,[1200,623]);//выбор ист данных
             createIMG("https://raw.githubusercontent.com/HOLLYCARROT/site/main/pages/styles/img/%D0%98%D0%B7%D0%BC%D0%B5%D0%BD%D0%B5%D0%BD%D0%B8%D0%B5%20%D1%80%D1%8F%D0%B4%D0%B0.jpg",0,[1200,696]);//изменение ряда
-            
+            createIMG("https://raw.githubusercontent.com/HOLLYCARROT/site/main/pages/styles/img/%D0%BA%D0%BE%D0%BC%D0%BF%D1%8C%D1%8E%D1%82%D0%B5%D1%80%D0%BD%D0%BE%D0%B5%20%D0%BC%D0%BE%D0%B4%D0%B5%D0%BB%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5.png",0,[571,425]);//компмод
+
             createIMG("https://raw.githubusercontent.com/HOLLYCARROT/site/main/pages/styles/img/%D0%A0%D0%B0%D0%B7%D0%BD%D0%BE%D0%BE%D0%B1%D1%80%D0%B0%D0%B7%D0%B8%D0%B5%20%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC.PNG",1,[1600,641]);//разнообразие систем
             createIMG("https://raw.githubusercontent.com/HOLLYCARROT/site/main/pages/styles/img/%D0%A2%D0%B0%20%D1%81%D0%B0%D0%BC%D0%B0%D1%8F%20%D1%82%D0%B0%D0%B1%D0%BB%D0%B8%D1%86%D0%B0%202.png",1,[1765,815]);//та самая таблица 2 XD
             createIMG("https://raw.githubusercontent.com/HOLLYCARROT/site/main/pages/styles/img/%D0%A2%D0%B0%20%D1%81%D0%B0%D0%BC%D0%B0%D1%8F%20%D1%82%D0%B0%D0%B1%D0%BB%D0%B8%D1%86%D0%B0%203.png",1,[1783,799]);//та самая таблица 3 XD
@@ -307,7 +308,7 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
             ImGui.PushStyleColor(ImGui.Col.ButtonActive, new ImGui.Vec4(0,0,0,0));
 
             ImGui.PushStyleColor(ImGui.Col.Text, new ImGui.Vec4(19/255,148/255,197/255,255));
-            ImGui.GetIO().FontGlobalScale = 0.7;
+            ImGui.GetIO().FontGlobalScale = 0.6;
             if(text[0] == "$") {
                 ImGui.GetIO().FontGlobalScale = 0.4;// text[0] = "";
                 txt1 = "Свернуть";
@@ -556,6 +557,7 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
                         });
                         if(cmodels[1]){ 
                             DrawIMG(images.mod[2], ImGui.GetWindowSize().x);
+                            DrawIMG(images.mod[10], ImGui.GetWindowSize().x);
                         }
                         DrawGradientButton("Современное моделирование", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
                             cmodels[2] = !cmodels[2];
@@ -656,6 +658,7 @@ ImGui.TextWrapped(` \nВ верхнее поле "Имя ряда" щелчко�
                         if(cmodels[6]){ 
                             ImGui.InvisibleButton("Lol", new ImGui.Vec2(100,15))
                             DrawButtonHREF("Компьютерное моделирование","https://ru.wikipedia.org/wiki/%D0%9A%D0%BE%D0%BC%D0%BF%D1%8C%D1%8E%D1%82%D0%B5%D1%80%D0%BD%D0%BE%D0%B5_%D0%BC%D0%BE%D0%B4%D0%B5%D0%BB%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5");
+                            DrawButtonHREF('Презентация по теме "Компьютерное моделирование"',"https://docs.google.com/presentation/d/1W16MuuG_VcGeT9TY6D2YLYSc90hS2Tc6");
                             DrawButtonHREF("Компьютерное информационные модели","https://eior.by/catalog_lecture/11-klass/informatika/10.php");
                             DrawButtonHREF("Проектирование интерфейса оконного приложения с использованием элементов управления","https://eior.by/catalog_lecture/11-klass/informatika/2.php");
                             DrawButtonHREF("Моделирование случайных событий. Метод Монте-Карло","https://eior.by/catalog_lecture/11-klass/informatika/11.php");
@@ -665,6 +668,7 @@ ImGui.TextWrapped(` \nВ верхнее поле "Имя ряда" щелчко�
                             DrawButtonHREF("Моделирование динамики численности популяций","https://bit.ly/3NVfMK4");
                             DrawButtonHREF("Моделирование в задачах преследования","https://drive.google.com/file/d/1Epijn0_RtkHD3vR9J_YM6AO8xu2f_He3");
                             DrawButtonHREF("3D-моделирование интерьеров. Модель строительной оболочки","https://eior.by/catalog_lecture/11-klass/informatika/16.php");
+                            DrawButtonHREF("Сборник задач по моделированию","https://drive.google.com/drive/folders/15jODiBS6DDmfj-qBryVmJrNVQXLCA4uQ?usp=share_link");
                             ImGui.InvisibleButton("Lol", new ImGui.Vec2(100,15))
                         }
                         DrawGradientButton("Тесты", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
