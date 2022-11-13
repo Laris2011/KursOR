@@ -1173,6 +1173,9 @@ ImGui.TextWrapped(`
 Или программу, строящую граффик функции 
 `);
 DrawIMG(images.oop[9], ImGui.GetWindowSize().x);
+DrawButtonHREF("Исходный код графического редактора ","https://drive.google.com/drive/folders/1PukfpEYL232IHijyyKIg0wBJyiShyUk-");
+DrawButtonHREF("Исходный код калькулятора ","https://drive.google.com/drive/folders/14n7UayDhFT4uc2xK76fvYeeD35VROhjc");
+DrawButtonHREF("Исходный код блокнота ","https://drive.google.com/drive/folders/1QpFV0zHdfJJRUaicUebHSUbHEAxDgB9R");
 ImGui.GetIO().FontGlobalScale = 1; 
 
                         };
