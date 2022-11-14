@@ -919,8 +919,7 @@ ImGui.GetIO().FontGlobalScale = 1;
                         });
                         if(itinsoc[13]){
                             ImGui.InvisibleButton("Lol", new ImGui.Vec2(100,15))
-                            DrawButtonHREF("Информационные системы и технологии,"https://drive.google.com/file/d/1IufwBqpSopSOLmnk5BxXj7tIiSVD_4N2");
-                            DrawButtonHREF('Информационные системы и технологии',"https://drive.google.com/file/d/1-Myd6mQLEEoDdFhMbmk13fe4pvbvYnr-");
+                            DrawButtonHREF("Информационные системы и технологии',"https://drive.google.com/file/d/1IufwBqpSopSOLmnk5BxXj7tIiSVD_4N2");
                             DrawButtonHREF('Кибербезопасность - это взаимодействие людей',"https://drive.google.com/file/d/1-Myd6mQLEEoDdFhMbmk13fe4pvbvYnr-");
                             DrawButtonHREF('Технологии будущего',"https://drive.google.com/file/d/1baXO9NqszIi3lVy6uhNEFsQF3axi9sQS");
                             DrawButtonHREF('Жертвы компьютерного мошенничества',"https://drive.google.com/file/d/1K0TVaIMKXgINJmEwYeIfHWF_IbqCwLIg");
