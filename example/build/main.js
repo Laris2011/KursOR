@@ -67,8 +67,6 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
         });
     }
     };
-    
-    var testlol = false;
 
     var __moduleName = context_1 && context_1.id;
     function LoadArrayBuffer(url) {
@@ -290,8 +288,6 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
             var ptemp = p0;
             const p1 = new ImGui.Vec2(p0.x + gradient_size.x/2, p0.y + gradient_size.y);
 
-            
-
             const p21 = new ImGui.Vec2(p0.x + gradient_size.x/2, p0.y);
             const p22 = new ImGui.Vec2(p0.x + gradient_size.x, p0.y + gradient_size.y);
             const col_a = ImGui.GetColorU32(ImGui.COL32(255, 255, 255, 255));
@@ -316,7 +312,7 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
             
             ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
             if(ImGui.Button(txt1,gradient_size)) {
-                if(t != null || t!= "lol") t();
+                if(t != null || t!= "debug") t();
             };
             ImGui.GetIO().FontGlobalScale = 1;
             ImGui.PopFont();
@@ -329,13 +325,12 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
     var dyy = 0;
     var da = 0;
     var DrawIMG = (s,size) => {
-        const ar = (size / s.size[0]) + dxx;
+        let ar = (size / s.size[0]) + dxx;
         let uv_min = new ImGui.Vec2(0.0, 0.0);
-        const uv_max = new ImGui.Vec2(1 + da,1 + da);
+        let uv_max = new ImGui.Vec2(1 + da,1 + da);
         let tint_col = new ImGui.Vec4(1.0, 1.0, 1.0, 1.0);
         let border_col = new ImGui.Vec4(1.0, 1.0, 1.0, 0.0);
-        ImGui.Image(s.texture, new ImGui.Vec2(size - 16 + f, s.size[1] * (ar) + dyy), uv_min, uv_max, tint_col, border_col); 
-        //БРАВО, ОНО ВОРК           
+        ImGui.Image(s.texture, new ImGui.Vec2(size - 16 + f, s.size[1] * (ar) + dyy), uv_min, uv_max, tint_col, border_col);       
     }
     var DrawButtonHREF = (text,href) => {
         ImGui.GetStyle().ItemSpacing.y *= 2;
@@ -358,7 +353,6 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
 
  
     // Main loop
-    //npm run start-example-html
     function _loop(time) {
         ImGui_Impl.NewFrame(time);
         ImGui.NewFrame();
@@ -380,27 +374,19 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
         ImGui.SetNextWindowPos(new ImGui.Vec2(viewport.WorkPos.x-1, viewport.WorkPos.y-1)); //viewport.WorkPos
         ImGui.SetNextWindowSize(new ImGui.Vec2(viewport.WorkSize.x+1, viewport.WorkSize.y+1)); //viewport.WorkSize
 
-        //let temp1 = ImGui.GetWindowSize().x;
         if(ImGui.Begin("Fullscreen window", null, window_flags)){
             if(gradientstate){
                 const draw_list = ImGui.GetWindowDrawList();
-                const gradient_size = viewport.WorkSize;//new ImGui.Vec2(ImGui.CalcItemWidth(), ImGui.GetFrameHeight());
+                const gradient_size = viewport.WorkSize;
                 {
-                    const p0 = new ImGui.Vec2(0, 0);//ImGui.GetCursorScreenPos();
+                    const p0 = new ImGui.Vec2(0, 0);
                     const p1 = new ImGui.Vec2(p0.x + gradient_size.x, p0.y + gradient_size.y);
                     const crs = rainbow();
                     const col_a = rnb ? ImGui.GetColorU32(ImGui.COL32(255*crs.x,255*crs.y,255*crs.z,255)) : ImGui.GetColorU32(ImGui.COL32(clear_color.x* 0xff, clear_color.y* 0xff, clear_color.z* 0xff, 255));
                     const col_b = ImGui.GetColorU32(ImGui.COL32(255, 255, 255, 255));
                     draw_list.AddRectFilledMultiColor(p0, p1, col_a, col_a, col_b, col_b);
-
-                    //ImGui.ImageButton(image_texture, new ImGui.Vec2(971, 991));
-                    //ImGui.InvisibleButton("##gradientbg2", gradient_size);
-
-                    //const pos = ImGui.GetCursorScreenPos();  //for tooltip, wip
                     let aspect_ratio = new ImGui.Vec2(1/((ImGui.GetWindowSize().x) / 850), 1/((ImGui.GetWindowSize().y-99) / 866));
-
-                
-                   if(menustate == 0){
+                    if(menustate == 0){
                         const uv_min = new ImGui.Vec2(0.0, 0.0);
                         const uv_max = new ImGui.Vec2(aspect_ratio.y, aspect_ratio.y);
                         const tint_col = new ImGui.Vec4(1.0, 1.0, 1.0, 1.0);
@@ -504,35 +490,15 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
 
 
                     var s1 = ImGui.GetStyle();
-                    //s1.childPadding
-                    //s1.WindowPadding.y = 30;
-
                     draw_list.AddRectFilled(new ImGui.Vec2(ImGui.GetWindowSize().x/5 - 30, 50 + ImGui.CalcTextSize("AWG").y), new ImGui.Vec2(ImGui.GetWindowSize().x*4 / 5 + 30, ImGui.GetWindowSize().y), ImGui.COL32(255, 255, 255, 255));
-                    //draw_list.AddRect(new ImGui.Vec2(ImGui.GetWindowSize().x/5, 50 + ImGui.CalcTextSize("AWG").y), new ImGui.Vec2(ImGui.GetWindowSize().x* 4/5, 50 + ImGui.GetWindowSize().y), ImGui.COL32(255, 255, 255, 255));
                     ImGui.SetCursorPos(new ImGui.Vec2(ImGui.GetWindowSize().x/5, 60 + ImGui.CalcTextSize("AWG").y));
                     {
                         let window_flags = ImGui.WindowFlags.None;
                         window_flags |= ImGui.WindowFlags.AlwaysVerticalScrollbar;
-                        //ImGui.PushStyleVar(ImGui.StyleVar.ChildRounding, 5.0);
                         ImGui.PushStyleColor(ImGui.Col.ChildBg, ImGui.COL32(255, 255, 255, 255));
                         ImGui.PushStyleColor(ImGui.Col.Text, ImGui.COL32(0, 0, 0, 255));
                 
                         ImGui.BeginChild("Child", new ImGui.Vec2(ImGui.GetWindowSize().x * 4/5 - ImGui.GetWindowSize().x/5, ImGui.GetWindowSize().y - 50 - ImGui.CalcTextSize("AWG").y), false, window_flags);
-                        /* if (ImGui.BeginTable("split", 2, ImGui.TableFlags.Resizable | ImGui.TableFlags.NoSavedSettings)) {
-                            for (let i = 0; i < 10; i++) {
-                                const buf = `${i.toString().padStart(3, "0")}`;
-                                ImGui.TableNextColumn();
-                                ImGui.Button(buf, new ImGui.Vec2(-1.175494e-38, 0.0));
-                            }
-                            ImGui.EndTable();
-                        } */
-                        
-                        /* for (let i = 0; i < 5; i++) {
-                          DrawGradientButton("test" + i, new ImGui.Vec2(ImGui.GetWindowSize().x, 70), () => {
-                            console.log(i);
-                            //ImGui.Button("test" + i);
-                        });
-                        } */
                         ImGui.GetIO().FontGlobalScale = 0.3;
                         DrawGradientButton("Модели и формы их представления", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
                             cmodels[0] = !cmodels[0];
@@ -544,13 +510,6 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
                             ImGui.GetIO().FontGlobalScale = 1;
                             DrawIMG(images.mod[0], ImGui.GetWindowSize().x);
                             DrawIMG(images.mod[1], ImGui.GetWindowSize().x);
-                            /* let window_size = ImGui.GetWindowSize();
-                            let ar = window_size.x / images.mod[0].size[0];
-                            let uv_min = new ImGui.Vec2(0.0, 0.0); // Top-left               ---resize
-                            let uv_max = new ImGui.Vec2(ar, ar); // Lower-right 1.0 1.0
-                            let tint_col = new ImGui.Vec4(1.0, 1.0, 1.0, 1.0); // No tint
-                            let border_col = new ImGui.Vec4(0.0, 0.0, 0.0, 1.0); // 50% opaque white  a 0.5 -> 0.0
-                            ImGui.Image(images.mod[0].texture, new ImGui.Vec2(window_size.x, images.mod[0].size[1] * ar), uv_min, uv_max, tint_col, border_col); */
                         }
 
 
@@ -578,87 +537,12 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
                         if(cmodels[3]){ 
                             DrawIMG(images.mod[3], ImGui.GetWindowSize().x);
                         }
-                        /* DrawGradientButton("Метод Монте-Карло", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            cmodels[4] = !cmodels[4];
-                        });
-                        if(cmodels[4]){ 
-
-                            ImGui.GetIO().FontGlobalScale = 0.5;
-                            ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
-                            ImGui.TextWrapped(` Метод Монте-Карло, названный в честь одного из самых знаменитых казино мира, основан на использовании генератора случайных чисел. Также значения генератора случайных чисел называют псевдослучайными числами, поскольку получены они были посредством строгих математических методов и, следовательно, они являются предсказуемыми.
-\n На языке PascalABC генератор случайных чисел реализован в стандартной функции random().
- В электронных таблицах MS Excel генератор случайных чисел реализован в функциях СЛЧИС() и СЛУЧМЕЖДУ().
-\n Рассмотреть метод Монте-Карло можно на примере задачи определения площади некоторой плоской фигуры.
- Пусть имеется плоская фигура, которая находится внутри прямоугольника (будем называть его базовым) с известной площадью S. Засыплем мысленно прямоугольник тончайшем слоем песка. Если подсчитать общее число песчинок n и число k тех песчинок, которые попали на фигуру, то приближенно площадь фигуры можно считать по формуле C = S * k : n, где С - площадь фигуры.
- Таким образом метод Монте-Карло освобождает нас от необходимости самим разбрасывать и подсчитывать песчинки. Рассмотрим суть метода Монте-Карло на примере задачи определения площади некоторой плоской фигуры. Это приложение метода называют геометрическим методом Монте-Карло.
- Пусть имеется плоская фигура, которая находится внутри пря¬моугольника с известной площадью S0. `);
-
- DrawIMG(images.mod[4], ImGui.GetWindowSize().x);
-                            ImGui.TextWrapped(` Засыплем мысленно прямоугольник тончайшим слоем песка. Прямоугольник с известной площадью в геометрическом методе Монте-Карло будем называть базовым. Если посчитать общее число n песчинок и число k тех песчинок, которые попали на фигуру, то приближенно площадь фигуры можно считать по формуле: S=k*S0/n`);
-                            ImGui.GetIO().FontGlobalScale = 1;
-                            
-                        }
-                        DrawGradientButton("Моделирование динамики численности популяций", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            cmodels[5] = !cmodels[5];
-                        });
-                        if(cmodels[5]){ 
-                            ImGui.GetIO().FontGlobalScale = 0.5;
-                            ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
-                            ImGui.TextWrapped(` Для описания динамики изменения численности популяций ученые используют несколько математических моделей. Для двух популяций используются модели взаимодействия двух видов. Среди них модель «хищник-жертва», модель конкуренции двух видов за ресурсы питания, модели взаимовыгодного взаимодействия (симбиоза). `);
-                            DrawIMG(images.mod[5], ImGui.GetWindowSize().x);
-ImGui.TextWrapped(` В электронных таблицах создадим комплексную компьютерную модель динамики численности четырех популяций, рассмотренных ранее.
- Для расчета численности популяции с неограниченным ростом используем формулу
-  x(1) = (1 + a)x(0).
- Для популяции с ограниченным ростом используем формулу
-  x(1) = x(0) + (a - bx(0))x(0).
- Для популяции с минимальной критической численностью используем формулу
-  x(1) = x(0) + (a - bx(0))·(x(0) - L).
- Для популяции с критической численностью и отловом особей используем формулу
-  x(1) = x(0) + (a - bx(0))·(x(0) - L) - Z.
- В исходных данных нужно задать значения параметров, записанных в правых частях этих формул.
- Данные компьютерной расчетной модели разместим по схеме примера: `);
-
- DrawIMG(images.mod[6], ImGui.GetWindowSize().x);
-ImGui.TextWrapped(` Вводим формулы
-  A10: =A4/A5 A12: 0
- В ячейки B12:E12 вводим формулу
-  =$A$3
- В следующей строке
-  A13: =A12+1
- В ячейки B13:E13 нужно ввести правые части четырех расчетных формул. Значение x(0) для формулы в каждом столбце берется из предыдущей строки.
-  B13: = (1 + $A$4)*B12
-  C13: = C12+($A$4-$A$5*C12)*C12
-  D13: =D12+($A$4-$A$5*D12)*(D12-$A$6)
-  E13: =E12+($A$4-$A$5*E12)* [1]
-  (E12-$A$6)-$A$7
- Формулы моделей требуют доработки.
- Численность популяции в модели неограниченного роста растет очень быстро. Поэтому ограниченные численности остальных трех популяций на совместной диаграмме становятся практически незаметными.
- Чтобы избежать такого эффекта, искусственно ограничим численность в первой модели величиной
-  ПЧ =1,1*$A$10,
- пользуясь тем, что в ячейке A10 вычислен предел численности популяции с ограниченным ростом. Для создания ограничения используем функцию ЕСЛИ() и в ячейку B13 вместо формулы модели неограниченного роста ФОРМН введем новую формулу по схеме
-  =ЕСЛИ(ФОРМН(ПЧ; ФОРМН; ПЧ).
- Формулы остальных трех моделей в ячейках расчетной таблицы могут выдавать отрицательные значения численности популяций, что нелогично.
- Поэтому вместо формул ФОРМ этих моделей в ячейки С13:E13 введем новые формулы по схеме
-  =ЕСЛИ(ФОРМ>0; ФОРМ; 0).
- Формулами диапазона A13:E13 таблица заполняется вниз до строки 47 включительно. Затем надо вывести на лист диаграмму с четырьмя графиками моделей.
- Выделяем диапазон A12:E47 в расчетной таблице, и на лист рабочей книги вставляем точечную диаграмму. Вводим название диаграммы «Динамика численности популяций». В нижнюю часть диаграммы выводится Легенда. `);
-
- DrawIMG(images.mod[7], ImGui.GetWindowSize().x);
-ImGui.TextWrapped(` \nОсталось поменять имена элементов диаграммы. Щелкаем по диаграмме правой клавишей мыши и в контекстном меню выбираем пункт "Выбрать данные …". Появляется диалоговое окно "Выбор источника данных". \n`);
-DrawIMG(images.mod[8], ImGui.GetWindowSize().x);
-ImGui.TextWrapped(` \nВ диалоговом окне слева выделяем строку "Ряд1" и щелкаем по кнопке "Изменить". Появляется диалоговое окно "Изменение ряда". \n`);
-DrawIMG(images.mod[9], ImGui.GetWindowSize().x);
-ImGui.TextWrapped(` \nВ верхнее поле "Имя ряда" щелчком по ячейке B11 вводим ссылку на заголовок второго столбца. Нажимаем кнопку OK. Имена остальных рядов изменяем аналогично. `);
-                            
-                            ImGui.GetIO().FontGlobalScale = 1;
-                            
-                        } */
 
                         DrawGradientButton("Задачи", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
                             cmodels[4] = !cmodels[4];
                         });
                         if(cmodels[4]){ 
-                            ImGui.InvisibleButton("Lol", new ImGui.Vec2(100,15))
+                            ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
                             DrawButtonHREF("Биологическая задача","https://docs.google.com/presentation/d/1xZ-Kjm-IQ8J3Nc11SkRGUcynFERs9Z4W");
                             DrawButtonHREF('Игра в рулетку',"https://docs.google.com/presentation/d/1QE4D1X0t19VKy0leNn1Kh66YDtoI5PxV");
                             DrawButtonHREF("Метод Монте-Карло","https://docs.google.com/presentation/d/1lR_mByzcx767g535pgJj-cTTjQhp7KIy");
@@ -668,14 +552,14 @@ ImGui.TextWrapped(` \nВ верхнее поле "Имя ряда" щелчко�
                             DrawButtonHREF("Шифрование","https://docs.google.com/presentation/d/1z2ZYDpVzQn0jZfqZznnnC-UnNt07KjP0");
                             DrawButtonHREF("Экологическая задач","https://docs.google.com/presentation/d/16fR8neMUwvilAV9FYPehzKhXXHllRYfu");
                             DrawButtonHREF("Температурные режимы","https://docs.google.com/presentation/d/1-8gMTk-qHQUpjJL8CeKAVO3Dz_jIEPJy");
-                            ImGui.InvisibleButton("Lol", new ImGui.Vec2(100,15))
+                            ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
                         }
 
                         DrawGradientButton("Teория", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
                             cmodels[6] = !cmodels[6];
                         });
                         if(cmodels[6]){ 
-                            ImGui.InvisibleButton("Lol", new ImGui.Vec2(100,15))
+                            ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
                             DrawButtonHREF("Компьютерное моделирование","https://ru.wikipedia.org/wiki/%D0%9A%D0%BE%D0%BC%D0%BF%D1%8C%D1%8E%D1%82%D0%B5%D1%80%D0%BD%D0%BE%D0%B5_%D0%BC%D0%BE%D0%B4%D0%B5%D0%BB%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5");
                             DrawButtonHREF("Компьютерное информационные модели","https://eior.by/catalog_lecture/11-klass/informatika/10.php");
                             DrawButtonHREF("Проектирование интерфейса оконного приложения с использованием элементов управления","https://eior.by/catalog_lecture/11-klass/informatika/2.php");
@@ -686,14 +570,13 @@ ImGui.TextWrapped(` \nВ верхнее поле "Имя ряда" щелчко�
                             DrawButtonHREF("Моделирование динамики численности популяций","https://bit.ly/3NVfMK4");
                             DrawButtonHREF("Моделирование в задачах преследования","https://drive.google.com/file/d/1Epijn0_RtkHD3vR9J_YM6AO8xu2f_He3");
                             DrawButtonHREF("3D-моделирование интерьеров. Модель строительной оболочки","https://eior.by/catalog_lecture/11-klass/informatika/16.php");
-                            DrawButtonHREF("Сборник задач по моделированию","https://drive.google.com/drive/folders/15jODiBS6DDmfj-qBryVmJrNVQXLCA4uQ?usp=share_link");
-                            ImGui.InvisibleButton("Lol", new ImGui.Vec2(100,15))
+                            ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
                         }
                         DrawGradientButton("Тесты", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
                             cmodels[7] = !cmodels[7];
                         });
                         if(cmodels[7]){ 
-                            ImGui.InvisibleButton("Lol", new ImGui.Vec2(100,15))
+                            ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
                             DrawButtonHREF("Компьютерные информационные модели","https://docs.google.com/forms/d/e/1FAIpQLSf0ffQ7AQ_E_exh3ujpR4RCegtc5wEdr9wM6a8vFGoOPP_Zgw/viewform");
                             DrawButtonHREF("Проектирование интерфейса оконного приложения с использованием элементов управления","https://docs.google.com/forms/d/e/1FAIpQLSeBJ57VLAcZn58Y15Gl8xuu5wuwD0n9nrAtqEP2AYK-sfGPJQ/viewform");
                             DrawButtonHREF("Моделирование случайных событий. Метод Монте-Карло","https://docs.google.com/forms/d/e/1FAIpQLSdLhAfy4umZ-D4CtJae8uDuN-EwcGrEWgFWDDPqoosjTOhz9A/viewform");
@@ -701,7 +584,7 @@ ImGui.TextWrapped(` \nВ верхнее поле "Имя ряда" щелчко�
                             DrawButtonHREF("Вычисление площади фигуры методом Монте-Карло","https://docs.google.com/forms/d/e/1FAIpQLSdtcaHJhO27LcuenfDtrG1iAfEzrpvI5GxJjNm2cu8eaR0wHw/viewform");
                             DrawButtonHREF("Моделирование динамики численности популяций","https://docs.google.com/forms/d/e/1FAIpQLScKMCGDugu8TQcZGciILpkXYX450Jg3KdvRS26K1LaIhp3zGw/viewform");
                             DrawButtonHREF("3D - моделирование интерьеров. Модель строительной оболочки","https://docs.google.com/forms/d/e/1FAIpQLSc3ZieHDONwY5JDSv9e8Sbd6xxA3h7Ni_dAjBEe_CTsJplmbw/viewform");
-                            ImGui.InvisibleButton("Lol", new ImGui.Vec2(100,15))
+                            ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
                         }
                         DrawGradientButton("Назад", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
                             menustate = 0;
@@ -901,7 +784,7 @@ ImGui.GetIO().FontGlobalScale = 1;
                             itinsoc[13] = !itinsoc[13];
                         });
                         if(itinsoc[13]){
-                            ImGui.InvisibleButton("Lol", new ImGui.Vec2(100,15))
+                            ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
                             DrawButtonHREF("Информационные системы и технологии","https://drive.google.com/file/d/1IufwBqpSopSOLmnk5BxXj7tIiSVD_4N2");
                             //DrawButtonHREF('Информационные системы и технологии',"https://drive.google.com/file/d/1-Myd6mQLEEoDdFhMbmk13fe4pvbvYnr-");
                             DrawButtonHREF('Кибербезопасность - это взаимодействие людей',"https://drive.google.com/file/d/1-Myd6mQLEEoDdFhMbmk13fe4pvbvYnr-");
@@ -912,7 +795,7 @@ ImGui.GetIO().FontGlobalScale = 1;
                             DrawButtonHREF('Как справляться с грубостью',"https://drive.google.com/file/d/12Z1ofXU-YVeyKlpU0hNBL3hZvQNxa0_u");
                             DrawButtonHREF('Интернет-безопасность детей',"https://drive.google.com/file/d/1OPklRcs3dWdmE9bwUysiX_oCf14Fkp7y");
                             DrawButtonHREF('Глоссарий',"https://drive.google.com/file/d/1J6fCrQpCky4ALH5Yt1hQN29FTok9XaOd");
-                            ImGui.InvisibleButton("Lol", new ImGui.Vec2(100,15))
+                            ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
                         };
 
                         DrawGradientButton("Тесты", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
@@ -922,9 +805,9 @@ ImGui.GetIO().FontGlobalScale = 1;
                             /* DrawGradientButton("$Свернуть", new ImGui.Vec2(100, 25), ()=>{
                                 itinsoc[14] = false;
                             }); */
-                            ImGui.InvisibleButton("Lol", new ImGui.Vec2(100,15))
+                            ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
                             DrawButtonHREF('Безопасность в сети Интернет',"https://docs.google.com/forms/d/e/1FAIpQLSft0zf_ca1F2lwglCmh-GW8KQfv8e49VgZegJ77Ue9tus-D5g/viewform");
-                            ImGui.InvisibleButton("Lol", new ImGui.Vec2(100,15))
+                            ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
                         };
 
                         DrawGradientButton("Назад", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
@@ -1063,22 +946,22 @@ ImGui.GetIO().FontGlobalScale = 1;
                             webconstr[7] = !webconstr[7];
                         });
                         if(webconstr[7]){
-                            ImGui.InvisibleButton("Lol", new ImGui.Vec2(100,15))
+                            ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
                             DrawButtonHREF('Основы веб-конструирования',"https://eior.by/catalog_lecture/11-klass/informatika/5.php");
                             DrawButtonHREF('Создание веб-страниц',"https://eior.by/catalog_lecture/11-klass/informatika/6.php");
                             DrawButtonHREF('Рефлексия урока',"https://drive.google.com/file/d/1VHuRNjjrJQ0-FZwIOmmHJ46zNZz-FGIx");
-                            ImGui.InvisibleButton("Lol", new ImGui.Vec2(100,15))
+                            ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
                         };
 
                         DrawGradientButton("Тесты", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
                             webconstr[8] = !webconstr[8];
                         });
                         if(webconstr[8]){
-                            ImGui.InvisibleButton("Lol", new ImGui.Vec2(100,15))
+                            ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
                             DrawButtonHREF('Основные понятия',"https://docs.google.com/forms/d/e/1FAIpQLScePAZBecVAkamQxLG7TR19FlFgpW6gGXiDA7slii3rLtmw-A/viewform");
                             DrawButtonHREF('Основы веб-конструирования',"https://docs.google.com/forms/d/e/1FAIpQLSfRCyPfSKewAYtlG4DTo1FMfZbJ_uLrr7IA_i3OmDozTHSK6A/viewform");
                             DrawButtonHREF('Создание веб-страниц',"https://docs.google.com/forms/d/e/1FAIpQLSdxIBpix5-EDnMH9OfGyPwqJBZv0B73WGsa0ZLkre3yiPgJcw/viewform");
-                            ImGui.InvisibleButton("Lol", new ImGui.Vec2(100,15))
+                            ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
                         };
 
                         DrawGradientButton("Назад", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
@@ -1206,22 +1089,22 @@ ImGui.GetIO().FontGlobalScale = 1;
                             oop[6] = !oop[6];
                         });
                         if(oop[6]){
-                            ImGui.InvisibleButton("Lol", new ImGui.Vec2(100,15))
+                            ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
                             DrawButtonHREF('Объектно-ориентированное программирование',"https://ru.wikipedia.org/wiki/%D0%9E%D0%B1%D1%8A%D0%B5%D0%BA%D1%82%D0%BD%D0%BE-%D0%BE%D1%80%D0%B8%D0%B5%D0%BD%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%BD%D0%BE%D0%B5_%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5");
                             DrawButtonHREF('Объектно-событийная модель работы программы. Визуальная среда разработки программ ',"https://eior.by/catalog_lecture/11-klass/informatika/1.php");
                             DrawButtonHREF('Проектирование интерфейса оконного приложения с использованием элементов управления ',"https://eior.by/catalog_lecture/11-klass/informatika/2.php");
                             DrawButtonHREF('Элементы управления для работы с графикой  ',"https://eior.by/catalog_lecture/11-klass/informatika/3.php");
-                            ImGui.InvisibleButton("Lol", new ImGui.Vec2(100,15))
+                            ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
                         };
 
                         DrawGradientButton("Тесты", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
                             oop[7] = !oop[7];
                         });
                         if(oop[7]){
-                            ImGui.InvisibleButton("Lol", new ImGui.Vec2(100,15))
+                            ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
                             DrawButtonHREF('Объектно-ориентированное программирование ',"https://docs.google.com/forms/d/e/1FAIpQLSf7BU34dbUCs3dCx3KIq-fSoB7OjbBT-MAHK9iussuC33O2hg/viewform?hr_submission=ChkIudusuooBEhAIjYSjwakMEgcI05G8raQLEAE");
                             DrawButtonHREF('Проектирование интерфейса оконного приложения с использованием элементов управления',"https://docs.google.com/forms/d/e/1FAIpQLSeBJ57VLAcZn58Y15Gl8xuu5wuwD0n9nrAtqEP2AYK-sfGPJQ/viewform?hr_submission=ChkIudusuooBEhAI97y1w6kMEgcI05G8raQLEAE");
-                            ImGui.InvisibleButton("Lol", new ImGui.Vec2(100,15))
+                            ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
                         };
 
                         DrawGradientButton("Назад", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
