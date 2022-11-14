@@ -346,6 +346,9 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
         ImGui.GetIO().FontGlobalScale = 0.5; 
         ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
         if(ImGui.Button(text,new ImGui.Vec2(ImGui.GetWindowSize().x,25))) window.open(href);
+        if(ImGui.IsItemHovered() && ImGui.IsMouseReleased(0)) {
+            window.open(href);
+        }
         ImGui.GetIO().FontGlobalScale = 1;
         ImGui.PopFont();
         ImGui.PopStyleColor(4);
@@ -899,7 +902,7 @@ ImGui.GetIO().FontGlobalScale = 1;
                         if(itinsoc[13]){
                             ImGui.InvisibleButton("Lol", new ImGui.Vec2(100,15))
                             DrawButtonHREF("Информационные системы и технологии","https://drive.google.com/file/d/1IufwBqpSopSOLmnk5BxXj7tIiSVD_4N2");
-                            DrawButtonHREF('Информационные системы и технологии',"https://drive.google.com/file/d/1-Myd6mQLEEoDdFhMbmk13fe4pvbvYnr-");
+                            //DrawButtonHREF('Информационные системы и технологии',"https://drive.google.com/file/d/1-Myd6mQLEEoDdFhMbmk13fe4pvbvYnr-");
                             DrawButtonHREF('Кибербезопасность - это взаимодействие людей',"https://drive.google.com/file/d/1-Myd6mQLEEoDdFhMbmk13fe4pvbvYnr-");
                             DrawButtonHREF('Технологии будущего',"https://drive.google.com/file/d/1baXO9NqszIi3lVy6uhNEFsQF3axi9sQS");
                             DrawButtonHREF('Жертвы компьютерного мошенничества',"https://drive.google.com/file/d/1K0TVaIMKXgINJmEwYeIfHWF_IbqCwLIg");
