@@ -397,18 +397,18 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
 
                 
                    if(menustate == 0){
-                        const uv_min = new ImGui.Vec2(0.0, 0.0); // Top-left               ---resize
-                        const uv_max = new ImGui.Vec2(aspect_ratio.y, aspect_ratio.y); // Lower-right 1.0 1.0
-                        const tint_col = new ImGui.Vec4(1.0, 1.0, 1.0, 1.0); // No tint
-                        const border_col = new ImGui.Vec4(1.0, 1.0, 1.0, 0.0); // 50% opaque white  a 0.5 -> 0.0
-                        ImGui.SetCursorPos(new ImGui.Vec2(((ImGui.GetWindowSize().x - (850/aspect_ratio.y))*0.5+1), 100));//
+                        const uv_min = new ImGui.Vec2(0.0, 0.0);
+                        const uv_max = new ImGui.Vec2(aspect_ratio.y, aspect_ratio.y);
+                        const tint_col = new ImGui.Vec4(1.0, 1.0, 1.0, 1.0);
+                        const border_col = new ImGui.Vec4(1.0, 1.0, 1.0, 0.0); // 50% opaque white
+                        ImGui.SetCursorPos(new ImGui.Vec2(((ImGui.GetWindowSize().x - (850/aspect_ratio.y))*0.5+1), 100));
                         ImGui.Image(image_texture, new ImGui.Vec2(850, 866), uv_min, uv_max, tint_col, border_col);
 
                         ImGui.GetIO().FontGlobalScale = 1;
                         ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
-                        ImGui.SetCursorPos(new ImGui.Vec2((ImGui.GetWindowSize().x - ImGui.CalcTextSize("КурсОР").x)*0.5+1, 26)); //ImGui.TextColored(new ImGui.Vec4(1.0, 0.0, 1.0, 1.0), "Pink");
+                        ImGui.SetCursorPos(new ImGui.Vec2((ImGui.GetWindowSize().x - ImGui.CalcTextSize("КурсОР").x)*0.5+1, 26)); 
                         ImGui.TextColored(new ImGui.Vec4(0.0, 0.0, 0.0, 1.0),"КурсОР");
-                        ImGui.SetCursorPos(new ImGui.Vec2((ImGui.GetWindowSize().x - ImGui.CalcTextSize("КурсОР").x)*0.5, 25)); //ImGui.TextColored(new ImGui.Vec4(1.0, 0.0, 1.0, 1.0), "Pink");
+                        ImGui.SetCursorPos(new ImGui.Vec2((ImGui.GetWindowSize().x - ImGui.CalcTextSize("КурсОР").x)*0.5, 25)); 
                         ImGui.Text("КурсОР");
                         if (ImGui.IsItemHovered()) {
                             style.FrameRounding = 0;
@@ -418,9 +418,7 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
                             ImGui.SetTooltip("Курс на Образование и Развитие");
                             ImGui.PopStyleColor(3); //2
                         }
-                        //ImGui.GetIO().FontGlobalScale = 1;
                         
-
                         var changecolors = () => {
                             ImGui.PushStyleColor(ImGui.Col.Button, new ImGui.Vec4(0,0,0,0));
                             ImGui.PushStyleColor(ImGui.Col.ButtonHovered, new ImGui.Vec4(0,0,0,0)); //50
@@ -675,7 +673,6 @@ ImGui.TextWrapped(` \nВ верхнее поле "Имя ряда" щелчко�
                         if(cmodels[6]){ 
                             ImGui.InvisibleButton("Lol", new ImGui.Vec2(100,15))
                             DrawButtonHREF("Компьютерное моделирование","https://ru.wikipedia.org/wiki/%D0%9A%D0%BE%D0%BC%D0%BF%D1%8C%D1%8E%D1%82%D0%B5%D1%80%D0%BD%D0%BE%D0%B5_%D0%BC%D0%BE%D0%B4%D0%B5%D0%BB%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5");
-                            DrawButtonHREF('Компьютерное моделирование',"https://docs.google.com/presentation/d/1W16MuuG_VcGeT9TY6D2YLYSc90hS2Tc6");
                             DrawButtonHREF("Компьютерное информационные модели","https://eior.by/catalog_lecture/11-klass/informatika/10.php");
                             DrawButtonHREF("Проектирование интерфейса оконного приложения с использованием элементов управления","https://eior.by/catalog_lecture/11-klass/informatika/2.php");
                             DrawButtonHREF("Моделирование случайных событий. Метод Монте-Карло","https://eior.by/catalog_lecture/11-klass/informatika/11.php");
