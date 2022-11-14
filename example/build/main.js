@@ -576,7 +576,7 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
                         if(cmodels[3]){ 
                             DrawIMG(images.mod[3], ImGui.GetWindowSize().x);
                         }
-                        DrawGradientButton("Метод Монте-Карло", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
+                        /* DrawGradientButton("Метод Монте-Карло", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
                             cmodels[4] = !cmodels[4];
                         });
                         if(cmodels[4]){ 
@@ -650,6 +650,23 @@ ImGui.TextWrapped(` \nВ верхнее поле "Имя ряда" щелчко�
                             
                             ImGui.GetIO().FontGlobalScale = 1;
                             
+                        } */
+
+                        DrawGradientButton("Задачи", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
+                            cmodels[4] = !cmodels[4];
+                        });
+                        if(cmodels[4]){ 
+                            ImGui.InvisibleButton("Lol", new ImGui.Vec2(100,15))
+                            DrawButtonHREF("Биологическая задача","https://docs.google.com/presentation/d/1xZ-Kjm-IQ8J3Nc11SkRGUcynFERs9Z4W");
+                            DrawButtonHREF('Игра в рулетку',"https://docs.google.com/presentation/d/1QE4D1X0t19VKy0leNn1Kh66YDtoI5PxV");
+                            DrawButtonHREF("Метод Монте-Карло","https://docs.google.com/presentation/d/1lR_mByzcx767g535pgJj-cTTjQhp7KIy");
+                            DrawButtonHREF("Выбор железнодорожной станции","https://docs.google.com/presentation/d/1xEO0_Q-2TImHJcqm01UYqeCMM7cX0Bmp");
+                            DrawButtonHREF("Биоритмы человека","https://docs.google.com/presentation/d/1e3LIb2nT9BwySvrWJ9_ZfL3DYuYhHwK3");
+                            DrawButtonHREF("Финансовая задача","https://docs.google.com/presentation/d/1IfwhhvGYRwGBIwpowtcrOeRWmI69y4L7");
+                            DrawButtonHREF("Шифрование","https://docs.google.com/presentation/d/1z2ZYDpVzQn0jZfqZznnnC-UnNt07KjP0");
+                            DrawButtonHREF("Экологическая задач","https://docs.google.com/presentation/d/16fR8neMUwvilAV9FYPehzKhXXHllRYfu");
+                            DrawButtonHREF("Температурные режимы","https://docs.google.com/presentation/d/1-8gMTk-qHQUpjJL8CeKAVO3Dz_jIEPJy");
+                            ImGui.InvisibleButton("Lol", new ImGui.Vec2(100,15))
                         }
 
                         DrawGradientButton("Teория", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
@@ -658,7 +675,7 @@ ImGui.TextWrapped(` \nВ верхнее поле "Имя ряда" щелчко�
                         if(cmodels[6]){ 
                             ImGui.InvisibleButton("Lol", new ImGui.Vec2(100,15))
                             DrawButtonHREF("Компьютерное моделирование","https://ru.wikipedia.org/wiki/%D0%9A%D0%BE%D0%BC%D0%BF%D1%8C%D1%8E%D1%82%D0%B5%D1%80%D0%BD%D0%BE%D0%B5_%D0%BC%D0%BE%D0%B4%D0%B5%D0%BB%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5");
-                            DrawButtonHREF('Презентация по теме "Компьютерное моделирование"',"https://docs.google.com/presentation/d/1W16MuuG_VcGeT9TY6D2YLYSc90hS2Tc6");
+                            DrawButtonHREF('Компьютерное моделирование',"https://docs.google.com/presentation/d/1W16MuuG_VcGeT9TY6D2YLYSc90hS2Tc6");
                             DrawButtonHREF("Компьютерное информационные модели","https://eior.by/catalog_lecture/11-klass/informatika/10.php");
                             DrawButtonHREF("Проектирование интерфейса оконного приложения с использованием элементов управления","https://eior.by/catalog_lecture/11-klass/informatika/2.php");
                             DrawButtonHREF("Моделирование случайных событий. Метод Монте-Карло","https://eior.by/catalog_lecture/11-klass/informatika/11.php");
@@ -869,7 +886,7 @@ ImGui.TextWrapped(` Кибербезопасность требует грамо
 ImGui.GetIO().FontGlobalScale = 1; 
                         };
 
-                        DrawGradientButton("Итог", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
+                        /* DrawGradientButton("Итог", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
                             itinsoc[12] = !itinsoc[12];
                         });
                         if(itinsoc[12]){
@@ -877,7 +894,7 @@ ImGui.GetIO().FontGlobalScale = 1;
 ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
 ImGui.TextWrapped(` Подводя итог, стоит сказать, что никакие программы и устройства не защитят вас, если злоумышленник завладеет вашим доверием, поэтому лучшая защита от кибератак - ваши осторожность и бдительность. `);
 ImGui.GetIO().FontGlobalScale = 1; 
-                        };
+                        }; */
 
                         DrawGradientButton("Теория", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
                             itinsoc[13] = !itinsoc[13];
@@ -885,13 +902,13 @@ ImGui.GetIO().FontGlobalScale = 1;
                         if(itinsoc[13]){
                             ImGui.InvisibleButton("Lol", new ImGui.Vec2(100,15))
                             DrawButtonHREF("Информационные системы и технологии","https://drive.google.com/file/d/1IufwBqpSopSOLmnk5BxXj7tIiSVD_4N2");
-                            DrawButtonHREF('Презентация по теме "Информационные системы и технологии"',"https://drive.google.com/file/d/1-Myd6mQLEEoDdFhMbmk13fe4pvbvYnr-");
-                            DrawButtonHREF('Презентация по теме "Кибербезопасность - это взаимодействие людей"',"https://drive.google.com/file/d/1-Myd6mQLEEoDdFhMbmk13fe4pvbvYnr-");
-                            DrawButtonHREF('Презентация по теме "Технологии будущего"',"https://drive.google.com/file/d/1baXO9NqszIi3lVy6uhNEFsQF3axi9sQS");
-                            DrawButtonHREF('Презентация по теме "Жертвы компьютерного мошенничества"',"https://drive.google.com/file/d/1K0TVaIMKXgINJmEwYeIfHWF_IbqCwLIg");
-                            DrawButtonHREF('Презентация по теме "Законодательство РБ в области Кибербезопасности"',"https://drive.google.com/file/d/1shlp8fN6YE2PNV1LD4rYcJjoWbV-frdv");
-                            DrawButtonHREF('Презентация по теме "Как обезопасить себя"',"https://drive.google.com/file/d/1-CnX33qoADJgOkhcD1luvBrwj9Abi9oU");
-                            DrawButtonHREF('Презентация по теме "Как справляться с грубостью"',"https://drive.google.com/file/d/12Z1ofXU-YVeyKlpU0hNBL3hZvQNxa0_u");
+                            DrawButtonHREF('Информационные системы и технологии',"https://drive.google.com/file/d/1-Myd6mQLEEoDdFhMbmk13fe4pvbvYnr-");
+                            DrawButtonHREF('Кибербезопасность - это взаимодействие людей',"https://drive.google.com/file/d/1-Myd6mQLEEoDdFhMbmk13fe4pvbvYnr-");
+                            DrawButtonHREF('Технологии будущего',"https://drive.google.com/file/d/1baXO9NqszIi3lVy6uhNEFsQF3axi9sQS");
+                            DrawButtonHREF('Жертвы компьютерного мошенничества',"https://drive.google.com/file/d/1K0TVaIMKXgINJmEwYeIfHWF_IbqCwLIg");
+                            DrawButtonHREF('Законодательство РБ в области Кибербезопасности',"https://drive.google.com/file/d/1shlp8fN6YE2PNV1LD4rYcJjoWbV-frdv");
+                            DrawButtonHREF('Как обезопасить себя',"https://drive.google.com/file/d/1-CnX33qoADJgOkhcD1luvBrwj9Abi9oU");
+                            DrawButtonHREF('Как справляться с грубостью',"https://drive.google.com/file/d/12Z1ofXU-YVeyKlpU0hNBL3hZvQNxa0_u");
                             DrawButtonHREF('Интернет-безопасность детей',"https://drive.google.com/file/d/1OPklRcs3dWdmE9bwUysiX_oCf14Fkp7y");
                             DrawButtonHREF('Глоссарий',"https://drive.google.com/file/d/1J6fCrQpCky4ALH5Yt1hQN29FTok9XaOd");
                             ImGui.InvisibleButton("Lol", new ImGui.Vec2(100,15))
