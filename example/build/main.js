@@ -1135,7 +1135,7 @@ ImGui.GetIO().FontGlobalScale = 1;
                         ImGui.PushStyleColor(ImGui.Col.Text, ImGui.COL32(0, 0, 0, 255));
                         ImGui.BeginChild("Child", new ImGui.Vec2(ImGui.GetWindowSize().x * 4/5 - ImGui.GetWindowSize().x/5, ImGui.GetWindowSize().y - 50 - ImGui.CalcTextSize("AWG").y), false, window_flags);
                         
-                        ImGui.SetCursorPosX((ImGui.GetWindowSize().x - ImGui.CalcTextSize("Шишпоренок Кирилл").x)*0.5);
+                        /*ImGui.SetCursorPosX((ImGui.GetWindowSize().x - ImGui.CalcTextSize("Шишпоренок Кирилл").x)*0.5);
                         ImGui.Text("Шишпоренок Кирилл");
 
                         ImGui.GetIO().FontGlobalScale = 0.5;
@@ -1154,7 +1154,7 @@ ImGui.GetIO().FontGlobalScale = 1;
                         ImGui.SetCursorPosX((ImGui.GetWindowSize().x - ImGui.CalcTextSize("Редактор").x)*0.5);
                         ImGui.Text("Редактор");
                         ImGui.GetIO().FontGlobalScale = 1;
-                        ImGui.PopFont();
+                        ImGui.PopFont();*/
 
 
                         ImGui.SetCursorPosX((ImGui.GetWindowSize().x - ImGui.CalcTextSize("Карневич Лариса Геннадьевна").x)*0.5);
@@ -1162,8 +1162,8 @@ ImGui.GetIO().FontGlobalScale = 1;
 
                         ImGui.GetIO().FontGlobalScale = 0.5;
                         ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
-                        ImGui.SetCursorPosX((ImGui.GetWindowSize().x - ImGui.CalcTextSize("Руководитель проекта").x)*0.5);
-                        ImGui.Text("Руководитель проекта");
+                        ImGui.SetCursorPosX((ImGui.GetWindowSize().x - ImGui.CalcTextSize("Автор проекта").x)*0.5);
+                        ImGui.Text("Автор проекта");
                         ImGui.GetIO().FontGlobalScale = 1;
                         ImGui.PopFont();
 
