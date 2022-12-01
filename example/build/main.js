@@ -1162,7 +1162,7 @@ ImGui.GetIO().FontGlobalScale = 1;
 
                         ImGui.GetIO().FontGlobalScale = 0.5;
                         ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
-                        ImGui.SetCursorPosX((ImGui.GetWindowSize().x - ImGui.CalcTextSize("Автор проекта").x)*0.5);
+                        ImGui.SetCursorPosX((ImGui.GetWindowSize().x - ImGui.CalcTextSize(""Научный руководитель проекта").x)*0.5);
                         ImGui.Text("Научный руководитель проекта");
                         ImGui.GetIO().FontGlobalScale = 1;
                         ImGui.PopFont();
