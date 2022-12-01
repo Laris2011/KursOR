@@ -1146,7 +1146,7 @@ ImGui.GetIO().FontGlobalScale = 1;
                         ImGui.PopFont();
 
 
-                        ImGui.SetCursorPosX((ImGui.GetWindowSize().x - ImGui.CalcTextSize("Андрос Артём").x)*0.5);
+                        /*ImGui.SetCursorPosX((ImGui.GetWindowSize().x - ImGui.CalcTextSize("Андрос Артём").x)*0.5);
                         ImGui.Text("Андрос Артём");
 
                         ImGui.GetIO().FontGlobalScale = 0.5;
@@ -1154,7 +1154,7 @@ ImGui.GetIO().FontGlobalScale = 1;
                         ImGui.SetCursorPosX((ImGui.GetWindowSize().x - ImGui.CalcTextSize("Редактор").x)*0.5);
                         ImGui.Text("Редактор");
                         ImGui.GetIO().FontGlobalScale = 1;
-                        ImGui.PopFont();
+                        ImGui.PopFont();*/
 
 
                         ImGui.SetCursorPosX((ImGui.GetWindowSize().x - ImGui.CalcTextSize("Карневич Лариса Геннадьевна").x)*0.5);
@@ -1163,7 +1163,7 @@ ImGui.GetIO().FontGlobalScale = 1;
                         ImGui.GetIO().FontGlobalScale = 0.5;
                         ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
                         ImGui.SetCursorPosX((ImGui.GetWindowSize().x - ImGui.CalcTextSize("Автор проекта").x)*0.5);
-                        ImGui.Text("Автор проекта");
+                        ImGui.Text("Научный руководитель проекта");
                         ImGui.GetIO().FontGlobalScale = 1;
                         ImGui.PopFont();
 
