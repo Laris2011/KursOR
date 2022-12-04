@@ -961,6 +961,8 @@ ImGui.GetIO().FontGlobalScale = 1;
                             DrawButtonHREF('Основные понятия',"https://docs.google.com/forms/d/e/1FAIpQLScePAZBecVAkamQxLG7TR19FlFgpW6gGXiDA7slii3rLtmw-A/viewform");
                             DrawButtonHREF('Основы веб-конструирования',"https://docs.google.com/forms/d/e/1FAIpQLSfRCyPfSKewAYtlG4DTo1FMfZbJ_uLrr7IA_i3OmDozTHSK6A/viewform");
                             DrawButtonHREF('Создание веб-страниц',"https://docs.google.com/forms/d/e/1FAIpQLSdxIBpix5-EDnMH9OfGyPwqJBZv0B73WGsa0ZLkre3yiPgJcw/viewform");
+                            DrawButtonHREF('Вопросы по созданию веб-страниц',"https://drive.google.com/file/d/1lZvriE1KrmQeFLzNFWhNhbwPV8HtBKc_/view");
+                           
                             ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
                         };
 
