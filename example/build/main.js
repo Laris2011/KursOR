@@ -795,6 +795,9 @@ ImGui.GetIO().FontGlobalScale = 1;
                             DrawButtonHREF('Как справляться с грубостью',"https://drive.google.com/file/d/12Z1ofXU-YVeyKlpU0hNBL3hZvQNxa0_u");
                             DrawButtonHREF('Интернет-безопасность детей',"https://drive.google.com/file/d/1OPklRcs3dWdmE9bwUysiX_oCf14Fkp7y");
                             DrawButtonHREF('Глоссарий',"https://drive.google.com/file/d/1J6fCrQpCky4ALH5Yt1hQN29FTok9XaOd");
+                            DrawButtonHREF('Кибербезопасность и киберустойчивость',"https://docs.google.com/presentation/d/1I5RlpXqw4_v1mT2BkQZpsZhGEBIBfgJH");
+                            DrawButtonHREF('Информатизация общества и образование',"https://docs.google.com/presentation/d/1SnbABvjVpWTg6s-q1KmTyyNg7DDTpelM");
+                            DrawButtonHREF('Информационные системы, технологии и ресурсы',"https://docs.google.com/presentation/d/1_pUspOgvGJpa-X7GaKf4KYdR_kI-3PCu");
                             ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
                         };
 
