@@ -1173,14 +1173,6 @@ ImGui.GetIO().FontGlobalScale = 1;
                         ImGui.PopFont();
 
 
-
-                        DrawGradientButton("Обратная связь (необходим гугл аккаунт). Код курса - i4srvab", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            document.location.href = "https://classroom.google.com/u/0/r/Mzg3NzE2MTU1NjAz/sort-last-name";
-                        });
-                        if(oop[7]){
-                            
-                        };
-
                         DrawGradientButton("Назад", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
                             menustate = 0;
                         });
