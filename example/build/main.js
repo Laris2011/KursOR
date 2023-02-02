@@ -572,6 +572,7 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
                             DrawButtonHREF("Моделирование динамики численности популяций","https://bit.ly/3NVfMK4");
                             DrawButtonHREF("Моделирование в задачах преследования","https://drive.google.com/file/d/1Epijn0_RtkHD3vR9J_YM6AO8xu2f_He3");
                             DrawButtonHREF("3D-моделирование интерьеров. Модель строительной оболочки","https://eior.by/catalog_lecture/11-klass/informatika/16.php");
+                            DrawButtonHREF("Моделирование в экономических задачах","https://eior.by/catalog_lecture/11-klass/informatika/18.php");
                             ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
                         }
                         DrawGradientButton("Тесты", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
