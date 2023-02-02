@@ -956,7 +956,7 @@ ImGui.GetIO().FontGlobalScale = 1;
                             DrawButtonHREF('Основы веб-конструирования',"https://eior.by/catalog_lecture/11-klass/informatika/5.php");
                             DrawButtonHREF('Создание веб-страниц',"https://eior.by/catalog_lecture/11-klass/informatika/6.php");
                             DrawButtonHREF('Рефлексия урока',"https://drive.google.com/file/d/1VHuRNjjrJQ0-FZwIOmmHJ46zNZz-FGIx");
-                            DrawButtonHREF('Понятие о каскадных аблицах стилей',"https://eior.by/catalog_lecture/11-klass/informatika/7.php");
+                            DrawButtonHREF('Понятие о каскадных таблицах стилей',"https://eior.by/catalog_lecture/11-klass/informatika/7.php");
                             DrawButtonHREF('Визуальное веб-конструирование',"https://eior.by/catalog_lecture/11-klass/informatika/9.php");
                             ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
                         };
@@ -970,7 +970,7 @@ ImGui.GetIO().FontGlobalScale = 1;
                             DrawButtonHREF('Основы веб-конструирования',"https://docs.google.com/forms/d/e/1FAIpQLSfRCyPfSKewAYtlG4DTo1FMfZbJ_uLrr7IA_i3OmDozTHSK6A/viewform");
                             DrawButtonHREF('Создание веб-страниц',"https://docs.google.com/forms/d/e/1FAIpQLSdxIBpix5-EDnMH9OfGyPwqJBZv0B73WGsa0ZLkre3yiPgJcw/viewform");
                             DrawButtonHREF('Вопросы по созданию веб-страниц',"https://drive.google.com/file/d/1lZvriE1KrmQeFLzNFWhNhbwPV8HtBKc_/view");
-                            DrawButtonHREF('Понятие о каскадных аблицах стилей',"https://docs.google.com/forms/d/e/1FAIpQLSe_VEuPDF51ajWxmLwGeGJhHvp8JvLSYf7Rd0mXosYqoR-VRA/viewform?hr_submission=ChkI78m4ooMQEhAIxZn3l8sMEgcI05G8raQLEAE");
+                            DrawButtonHREF('Понятие о каскадных таблицах стилей',"https://docs.google.com/forms/d/e/1FAIpQLSe_VEuPDF51ajWxmLwGeGJhHvp8JvLSYf7Rd0mXosYqoR-VRA/viewform?hr_submission=ChkI78m4ooMQEhAIxZn3l8sMEgcI05G8raQLEAE");
                             DrawButtonHREF('Визуальное веб-конструирование',"https://docs.google.com/forms/d/e/1FAIpQLSdOQsFwueu893eiDntPn3AHc6BVUOxiqAyLafo7-D28D2C8Ww/viewform?hr_submission=ChkI78m4ooMQEhAIvr_eu8cMEgcI05G8raQLEAA");
                             ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
                         };
