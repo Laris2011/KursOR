@@ -813,6 +813,8 @@ ImGui.GetIO().FontGlobalScale = 1;
                             }); */
                             ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
                             DrawButtonHREF('Безопасность в сети Интернет',"https://docs.google.com/forms/d/e/1FAIpQLSft0zf_ca1F2lwglCmh-GW8KQfv8e49VgZegJ77Ue9tus-D5g/viewform");
+                            DrawButtonHREF('Информационные системы, технологии и ресурсы',"https://docs.google.com/forms/d/e/1FAIpQLScmeF8lUhvnknH5-DX5LbgPT_j6vUiwpLLuPfGKy04125T4hA/viewform");
+                            DrawButtonHREF('Информатизация общества. Образование и профессиональная деятельность в информационном обществе',"https://docs.google.com/forms/d/e/1FAIpQLSdd5t2Hy33FJ4XZZcw9g69NnZuFGXGchZdkVoh1bGgwYttgog/viewform");
                             ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
                         };
 
