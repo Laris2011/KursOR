@@ -950,7 +950,7 @@ ImGui.BulletText("  Дальнейшее обслуживание.");
 ImGui.GetIO().FontGlobalScale = 1; 
                         };
 
-                        DrawGradientButton("Примеры сайтов", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
+                        /*DrawGradientButton("Примеры сайтов", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
                             webconstr[7] = !webconstr[7];
                         });
                         if(webconstr[7]){ 
@@ -963,7 +963,7 @@ ImGui.GetIO().FontGlobalScale = 1;
                             DrawButtonHREF('Пример веб-страницы 6',"https://rusichka408.wixsite.com/sskz");
                             DrawButtonHREF('Пример веб-страницы 7',"https://tiglow.wixsite.com/classicgames");
                             ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
-                        }
+                        }*/
 
                         DrawGradientButton("Теория", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
                             webconstr[8] = !webconstr[8];
