@@ -554,6 +554,14 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
                             DrawButtonHREF("Температурные режимы","https://docs.google.com/presentation/d/1-8gMTk-qHQUpjJL8CeKAVO3Dz_jIEPJy");
                             DrawButtonHREF("Транспортная задача","https://eior.by/catalog_lecture/11-klass/informatika/19.php");
                             DrawButtonHREF("Движение тела в воздухе","https://eior.by/catalog_lecture/11-klass/informatika/20.php");
+                            DrawButtonHREF("Деление клеток","https://drive.google.com/file/d/1UKlpA24C0u4HetBHAO2nSd7dn-KkEvke/view");
+                            DrawButtonHREF("График тренировок","https://drive.google.com/file/d/1Rr-ogxz-cplCigKf00lUXfjYSWO-pf36/view");
+                            DrawButtonHREF("Вертикально броошенный мяч","https://drive.google.com/file/d/1BXp8Iz0jqMFsmr8T1NaPEvqhvtogY_d1/view");
+                            DrawButtonHREF("Исследование массива температур","https://drive.google.com/file/d/1cMfC1ris91VPgUSDrxqzX-iqqIc1FInX/view");
+                            DrawButtonHREF("Моделирование полета тела","https://drive.google.com/file/d/10j5IrGNQ9CZVboju45TpHQ5yXuUUZ4qo/view");
+                            DrawButtonHREF("Обои и комната","https://drive.google.com/file/d/1BhWjgwZjaBbqR4qeXD9dY0bm2QpJzHVa/view");
+                            DrawButtonHREF("Совместимость по биоритмам","https://drive.google.com/file/d/1dj7CMbou_j0Q4pWreXa8zjPUXvaswa-D/view");
+                            DrawButtonHREF("Задача роста и убывания","https://drive.google.com/file/d/1Q_zP5g9WNrXw32K409s4Iiim-N6DZotd/view");
                             ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
                         }
 
