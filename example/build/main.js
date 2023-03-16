@@ -562,6 +562,7 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
                             DrawButtonHREF("Обои и комната","https://drive.google.com/file/d/1BhWjgwZjaBbqR4qeXD9dY0bm2QpJzHVa/view");
                             DrawButtonHREF("Совместимость по биоритмам","https://drive.google.com/file/d/1dj7CMbou_j0Q4pWreXa8zjPUXvaswa-D/view");
                             DrawButtonHREF("Задача роста и убывания","https://drive.google.com/file/d/1Q_zP5g9WNrXw32K409s4Iiim-N6DZotd/view");
+                            DrawButtonHREF("Динамика численности популяций","https://eior.by/catalog_lecture/11-klass/informatika/14.php");
                             ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
                         }
 
