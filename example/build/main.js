@@ -563,6 +563,7 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
                             DrawButtonHREF("Совместимость по биоритмам","https://drive.google.com/file/d/1dj7CMbou_j0Q4pWreXa8zjPUXvaswa-D/view");
                             DrawButtonHREF("Задача роста и убывания","https://drive.google.com/file/d/1Q_zP5g9WNrXw32K409s4Iiim-N6DZotd/view");
                             DrawButtonHREF("Динамика численности популяций","https://eior.by/catalog_lecture/11-klass/informatika/14.php");
+                            DrawButtonHREF("Моделирование в экономических задачах","https://eior.by/catalog_lecture/11-klass/informatika/18.php");
                             ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
                         }
 
@@ -595,7 +596,8 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
                             DrawButtonHREF("Вычисление значения числа pi методом Монте-Карло","https://docs.google.com/forms/d/e/1FAIpQLSczVHhPz0FYuM5if1HYrs3qZFX_N-gWG-Gm36YPFoGa_b1_IA/viewform");
                             DrawButtonHREF("Вычисление площади фигуры методом Монте-Карло","https://docs.google.com/forms/d/e/1FAIpQLSdtcaHJhO27LcuenfDtrG1iAfEzrpvI5GxJjNm2cu8eaR0wHw/viewform");
                             DrawButtonHREF("Моделирование динамики численности популяций","https://docs.google.com/forms/d/e/1FAIpQLScKMCGDugu8TQcZGciILpkXYX450Jg3KdvRS26K1LaIhp3zGw/viewform");
-                            DrawButtonHREF("3D - моделирование интерьеров. Модель строительной оболочки","https://docs.google.com/forms/d/e/1FAIpQLSc3ZieHDONwY5JDSv9e8Sbd6xxA3h7Ni_dAjBEe_CTsJplmbw/viewform");
+                            DrawButtonHREF("Модель строительной оболочки","https://docs.google.com/forms/d/e/1FAIpQLSc3ZieHDONwY5JDSv9e8Sbd6xxA3h7Ni_dAjBEe_CTsJplmbw/viewform");
+                            DrawButtonHREF("Модели предметного наполнения","https://docs.google.com/forms/d/e/1FAIpQLSfNk4mhKCnK2SC1L_oIO54P9b99AFMejkI7uT5_HoczFQbzPw/viewform");
                             ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
                         }
                         DrawGradientButton("Назад", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
