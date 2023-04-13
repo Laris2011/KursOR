@@ -987,6 +987,7 @@ ImGui.GetIO().FontGlobalScale = 1;
                             DrawButtonHREF('Визуальное веб-конструирование',"https://eior.by/catalog_lecture/11-klass/informatika/9.php");
                             DrawButtonHREF('Презентация по каскадным таблицам стилей',"https://drive.google.com/file/d/1sJPRTesd655-3L1tFxOAwPAjh9__wmgk/view");
                             DrawButtonHREF('Визуальное веб-конструирование',"https://eior.by/catalog_lecture/11-klass/informatika/9.php");
+                            DrawButtonHREF('Взаимосвязь веб-программирования, веб-разработки и веб-технологий',"https://drive.google.com/file/d/1kTzi87pLt6t5DorDukwRBRz7-piqJ-ng");
                             ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
                         };
 
