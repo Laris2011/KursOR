@@ -597,6 +597,9 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
                             DrawButtonHREF("Моделирование динамики численности популяций","https://docs.google.com/forms/d/e/1FAIpQLScKMCGDugu8TQcZGciILpkXYX450Jg3KdvRS26K1LaIhp3zGw/viewform");
                             DrawButtonHREF("Модель строительной оболочки","https://docs.google.com/forms/d/e/1FAIpQLSc3ZieHDONwY5JDSv9e8Sbd6xxA3h7Ni_dAjBEe_CTsJplmbw/viewform");
                             DrawButtonHREF("Модели предметного наполнения","https://docs.google.com/forms/d/e/1FAIpQLSfNk4mhKCnK2SC1L_oIO54P9b99AFMejkI7uT5_HoczFQbzPw/viewform");
+                            DrawButtonHREF("Моделирование в экономических задачах","https://docs.google.com/forms/d/e/1FAIpQLSdjYIgv8QdON7STIU2ydsJ9P4Xl1_IeeLCAFio5dd0SPPUXpQ/viewform");
+                            DrawButtonHREF("Транспортная задача","https://docs.google.com/forms/d/e/1FAIpQLSe6dIJ05epdQ23KHLAYe9dJa2LpnEDvDIx4t7rNniDCgB6ySw/viewform");
+                            DrawButtonHREF("Моделирование движения тела в воздухе","https://docs.google.com/forms/d/e/1FAIpQLSeLMqTMA5qbZoX4nojitCa2D3foThMt1v24whO2QolYmtGW1g/viewform");
                             ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
                         }
                         DrawGradientButton("Назад", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
