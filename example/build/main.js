@@ -391,7 +391,7 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
                         const uv_max = new ImGui.Vec2(aspect_ratio.y, aspect_ratio.y);//ImGui.Vec2(aspect_ratio.x, aspect_ratio.y);
                         const tint_col = new ImGui.Vec4(1.0, 1.0, 1.0, 1.0);
                         const border_col = new ImGui.Vec4(1.0, 1.0, 1.0, 0.0); // 50% opaque white
-                        ImGui.SetCursorPos(new ImGui.Vec2(((ImGui.GetWindowSize().x - (850/aspect_ratio.x))*0.5+1), 100));
+                        ImGui.SetCursorPos(new ImGui.Vec2(((ImGui.GetWindowSize().x - (850/aspect_ratio.y))*0.5+1), 100));
                         ImGui.Image(image_texture, new ImGui.Vec2(850, 866), uv_min, uv_max, tint_col, border_col);
                         //DrawIMG(image_texture, ImGui.GetWindowSize().x);
 
