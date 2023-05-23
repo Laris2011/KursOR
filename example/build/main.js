@@ -32,43 +32,873 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
         web: new Array(),
         oop: new Array()
     })
-    
-    var createIMG = (link, category, size) => {
-        if(category == 0){
-        images.mod.push({
-            src: link,
-            texture: null,
-            temp: null,
-            size: size
-        });
-    }
-        if(category == 1){
-        images.soc.push({
-            src: link,
-            texture: null,
-            temp: null,
-            size: size
-        });
-    }
-        if(category == 2){
-        images.web.push({
-            src: link,
-            texture: null,
-            temp: null,
-            size: size
-        });
-    }
-        if(category == 3){
-        images.oop.push({
-            src: link,
-            texture: null,
-            temp: null,
-            size: size
-        });
-    }
-    };
 
-    var __moduleName = context_1 && context_1.id;
+    var Utils = {
+        textSize: 0.5,
+        images: [],
+        createIMG: (text1,link,size) => {//текст для удобного использования
+            Utils.images.push({
+                text: text1,
+                src: link,
+                texture: null,
+                temp: null,
+                size: size
+            });
+        },
+        getImage: (name) => {
+            for (var i = 0; i < Utils.images.length; i++) {
+                if (Utils.images[i].text === name) {
+                  return Utils.images[i];
+                }
+              }
+            return Utils.images[0];//если не найдет то выдаст первое
+        },
+        drawGradientButton: (module) => {
+            ImGui.GetIO().FontGlobalScale = 0.3;
+            let draw_list = ImGui.GetWindowDrawList();
+            const gradient_size = new ImGui.Vec2(ImGui.GetWindowSize().x, 70);
+            {
+                var p0 = ImGui.GetCursorScreenPos();
+                var io = ImGui.GetIO();
+                var ptemp = p0;
+                const p1 = new ImGui.Vec2(p0.x + gradient_size.x/2, p0.y + gradient_size.y);
+    
+                const p21 = new ImGui.Vec2(p0.x + gradient_size.x/2, p0.y);
+                const p22 = new ImGui.Vec2(p0.x + gradient_size.x, p0.y + gradient_size.y);
+                const col_a = ImGui.GetColorU32(ImGui.COL32(255, 255, 255, 255));
+                var dx = 1;
+                if(io.MousePos.x >= p0.x && io.MousePos.x <= p0.x + gradient_size.x && io.MousePos.y >= p0.y && io.MousePos.y <= p0.y + gradient_size.y){
+                    dx = 1.1;
+                }
+                const col_b = ImGui.GetColorU32(ImGui.COL32(clear_color.x* 0xff/dx, clear_color.y* 0xff/dx, clear_color.z* 0xff/dx, 255));
+                draw_list.AddRectFilledMultiColor(p0, p1, col_a, col_b, col_b, col_a); 
+                draw_list.AddRectFilledMultiColor(p21, p22, col_b, col_a, col_a, col_b);
+    
+                ImGui.PushStyleColor(ImGui.Col.Button, new ImGui.Vec4(0,0,0,0));
+                ImGui.PushStyleColor(ImGui.Col.ButtonHovered, new ImGui.Vec4(0,0,0,0));
+                ImGui.PushStyleColor(ImGui.Col.ButtonActive, new ImGui.Vec4(0,0,0,0));
+    
+                ImGui.PushStyleColor(ImGui.Col.Text, new ImGui.Vec4(19/255,148/255,197/255,255));
+                ImGui.GetIO().FontGlobalScale = 0.6;
+                /*решил отказаться от кнопки, если вдруг понадобится то $чтоугодно и оно свернет
+                if(module.chapter[0] == "$") {
+                    ImGui.GetIO().FontGlobalScale = 0.4;
+                    module.chapter = "Свернуть";
+                }*/
+                
+                ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
+                if(ImGui.Button(module.chapter,gradient_size)) module.opened = !module.opened;
+                ImGui.GetIO().FontGlobalScale = 1;
+                ImGui.PopFont();
+                ImGui.PopStyleColor(4);
+            }
+        },
+        drawButtonHREF: (text,href) => {
+            ImGui.GetStyle().ItemSpacing.y *= 2;
+            ImGui.PushStyleColor(ImGui.Col.Button,ImGui.Color.HSV(187/365, 0.635, 1));
+            ImGui.PushStyleColor(ImGui.Col.ButtonHovered, ImGui.Color.HSV(187/365, 0.635, 0.9));
+            ImGui.PushStyleColor(ImGui.Col.ButtonActive, ImGui.Color.HSV(187/365, 0.635, 1));
+            ImGui.PushStyleColor(ImGui.Col.Text, ImGui.Color.HSV(187/365, 0.635, 0.7));  
+            ImGui.GetIO().FontGlobalScale = 0.5; 
+            ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
+            //if(ImGui.Button(text,new ImGui.Vec2(ImGui.GetWindowSize().x,25))) window.open(href);
+            ImGui.Button(text,new ImGui.Vec2(ImGui.GetWindowSize().x,25));
+            if(ImGui.IsItemHovered() && ImGui.IsMouseReleased(0)) {
+                window.open(href);
+            }
+            ImGui.GetIO().FontGlobalScale = 1;
+            ImGui.PopFont();
+            ImGui.PopStyleColor(4);
+            ImGui.GetStyle().ItemSpacing.y /= 2;
+        },
+        drawSpace: ()=>{
+            ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
+        },
+        drawText: (text) => {
+            ImGui.GetIO().FontGlobalScale = Utils.textSize;
+            ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
+            ImGui.TextWrapped(text);
+            ImGui.GetIO().FontGlobalScale = 1;
+        },
+        drawImage: (name) => {
+            let image = Utils.getImage(name);
+            let ar = (ImGui.GetWindowSize().x / image.size[0]);
+            let uv_min = new ImGui.Vec2(0.0, 0.0);
+            let uv_max = new ImGui.Vec2(1,1);
+            let tint_col = new ImGui.Vec4(1.0, 1.0, 1.0, 1.0);
+            let border_col = new ImGui.Vec4(1.0, 1.0, 1.0, 0.0);
+            ImGui.Image(image.texture, new ImGui.Vec2(ImGui.GetWindowSize().x - 16, image.size[1] * (ar)), uv_min, uv_max, tint_col, border_col);     
+        },
+        setup: () =>{
+            Utils.createIMG("виды моделей",          "https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%92%D0%B8%D0%B4%D1%8B%20%D0%BC%D0%BE%D0%B4%D0%B5%D0%BB%D0%B5%D0%B9.PNG",[1268,510]);
+            Utils.createIMG("виды инф моделей",      "https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%98%D0%BD%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%86%D0%B8%D0%BE%D0%BD%D0%BD%D1%8B%D0%B5%20%D0%BC%D0%BE%D0%B4%D0%B5%D0%BB%D0%B8.PNG",[1329,628]);
+            Utils.createIMG("цели",                  "https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%A6%D0%B5%D0%BB%D0%B8_%D0%BA%D0%BE%D0%BC%D0%BF%D1%8C%D1%8E%D1%82%D0%B5%D1%80%D0%BD%D0%BE%D0%B3%D0%BE_%D0%BC%D0%BE%D0%B4%D0%B5%D0%BB%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F.PNG",[1032,533]);
+            Utils.createIMG("элемент построения",    "https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%AD%D0%BB%D0%B5%D0%BC%D0%B5%D0%BD%D1%82_%D0%BF%D0%BE%D1%81%D1%82%D1%80%D0%BE%D0%B5%D0%BD%D0%B8%D1%8F_%D0%B4%D0%B8%D0%BD%D0%B0%D0%BC%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D1%85_%D0%BC%D0%BE%D0%B4%D0%B5%D0%BB%D0%B5%D0%B9_%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC.PNG",[983,536]);
+            Utils.createIMG("метод монте карло",     "https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%9C%D0%B5%D1%82%D0%BE%D0%B4%20%D0%9C%D0%BE%D0%BD%D1%82%D0%B5-%D0%9A%D0%B0%D1%80%D0%BB%D0%BE.PNG",[1172,531]);
+            Utils.createIMG("популяции",             "https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/Моделирование популяции.PNG",[1637,819]);
+            Utils.createIMG("пример",                "https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%BF%D1%80%D0%B8%D0%BC%D0%B5%D1%80.jpg",[1196,660]);
+            Utils.createIMG("легенда",               "https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%9B%D0%B5%D0%B3%D0%B5%D0%BD%D0%B4%D0%B0.jpg",[1200,720]);
+            Utils.createIMG("выбор ист данных",      "https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%92%D1%8B%D0%B1%D0%BE%D1%80%20%D0%B8%D1%81%D1%82%D0%BE%D1%87%D0%BD%D0%B8%D0%BA%D0%B0%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85.jpg",[1200,623]);
+            Utils.createIMG("изменение ряда",        "https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%98%D0%B7%D0%BC%D0%B5%D0%BD%D0%B5%D0%BD%D0%B8%D0%B5%20%D1%80%D1%8F%D0%B4%D0%B0.jpg",[1200,696]);
+            Utils.createIMG("компмод",               "https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%BA%D0%BE%D0%BC%D0%BF%D1%8C%D1%8E%D1%82%D0%B5%D1%80%D0%BD%D0%BE%D0%B5%20%D0%BC%D0%BE%D0%B4%D0%B5%D0%BB%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5.png",[571,425]);
+            Utils.createIMG("разнообразие систем",   "https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%A0%D0%B0%D0%B7%D0%BD%D0%BE%D0%BE%D0%B1%D1%80%D0%B0%D0%B7%D0%B8%D0%B5%20%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC.PNG",[1600,641]);
+            Utils.createIMG("та самая таблица 2 XD", "https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%A2%D0%B0%20%D1%81%D0%B0%D0%BC%D0%B0%D1%8F%20%D1%82%D0%B0%D0%B1%D0%BB%D0%B8%D1%86%D0%B0%202.png",[1765,815]);
+            Utils.createIMG("та самая таблица 3 XD", "https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%A2%D0%B0%20%D1%81%D0%B0%D0%BC%D0%B0%D1%8F%20%D1%82%D0%B0%D0%B1%D0%BB%D0%B8%D1%86%D0%B0%203.png",[1783,799]);
+            Utils.createIMG("достижения",            "https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%94%D0%BE%D1%81%D1%82%D0%B8%D0%B6%D0%B5%D0%BD%D0%B8%D1%8F%20%D0%B8%D0%BD%D1%84%20%D1%82%D0%B5%D1%85%D0%BD.PNG",[1396,540]);
+            Utils.createIMG("черты",                 "https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%A7%D0%B5%D1%80%D1%82%D1%8B%20%D0%BE%D0%B1%D1%89%D0%B5%D1%81%D1%82%D0%B2%D0%B0%20%D0%B7%D0%BD%D0%B0%D0%BD%D0%B8%D0%B9.PNG",[1359,345]);
+            Utils.createIMG("работы",                "https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%A1%D0%B0%D0%BC%D1%8B%D0%B5%20%D0%B2%D0%BE%D1%81%D1%82%D1%80%D0%B5%D0%B1%D0%BE%D0%B2%D0%B0%D0%BD%D0%BD%D1%8B%D0%B5%20%D0%BF%D1%80%D0%BE%D1%84%D0%B5%D1%81%D1%81%D0%B8%D0%B8%20%D0%B1%D1%83%D0%B4%D1%83%D1%89%D0%B5%D0%B3%D0%BE.PNG",[926,528]);
+            Utils.createIMG("этикет",                "https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%9D%D0%B5%D0%BF%D1%80%D0%B8%D0%B5%D0%BC%D0%BB%D0%B8%D0%BC%D1%8B%D0%B5%20%D0%B4%D0%B5%D0%B9%D1%81%D1%82%D0%B2%D0%B8%D1%8F.PNG",[917,434]);
+            Utils.createIMG("базовые прв эт",        "https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%91%D0%B0%D0%B7%D0%BE%D0%B2%D1%8B%D0%B5%20%D0%BF%D1%80%D0%B0%D0%B2%D0%B8%D0%BB%D0%B0%20%D1%81%D0%B5%D1%82%D0%B5%D0%B2%D0%BE%D0%B3%D0%BE%20%D1%8D%D1%82%D0%B8%D0%BA%D0%B5%D1%82%D0%B0.PNG",[1073,646]);
+            Utils.createIMG("факторы уязв",          "https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%A4%D0%B0%D0%BA%D1%82%D0%BE%D1%80%D1%8B%20%D1%83%D1%8F%D0%B7%D0%B2%D0%B8%D0%BC%D0%BE%D1%81%D1%82%D0%B5%D0%B9.png",[835,385]);
+            Utils.createIMG("меры",                  "https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%9C%D0%B5%D1%80%D1%8B%20%D0%BE%D0%B1%D0%B5%D1%81%D0%BF%D0%B5%D1%87%D0%B5%D0%BD%D0%B8%D1%8F%20%D0%BA%D0%B8%D0%B1%D0%B5%D1%80%D1%83%D1%81%D1%82%D0%BE%D0%B9%D1%87%D0%B8%D0%B2%D0%BE%D1%81%D1%82%D0%B8.PNG",[1017,672]);
+            Utils.createIMG("профессии",             "https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%A1%D0%BF%D0%B5%D1%86%D0%B8%D0%B0%D0%BB%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D0%B8%20%D0%BF%D0%BE%20%D0%B8%D0%BD%D1%84%D0%BE%D1%80%D0%BC%20%D0%B1%D0%B5%D0%B7.PNG",[1330,630]);
+            Utils.createIMG("виды кбат",             "https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%92%D0%B8%D0%B4%D1%8B%20%D0%BA%D0%B8%D0%B1%D0%B5%D1%80%D0%B0%D1%82%D0%B0%D0%BA.PNG",[1636,509]);
+            Utils.createIMG("облако",                "https://raw.githubusercontent.com/HOLLYCARROT/site/e506922fcb280aa9ccbdf97d9d5237861e55e640/pages/styles/img/wordcloud.svg",[800,800]);
+            Utils.createIMG("снимок",                "https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%A1%D0%BD%D0%B8%D0%BC%D0%BE%D0%BA.PNG",[1219,738]);
+            Utils.createIMG("графика",               "https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%93%D1%80%D0%B0%D1%84%D0%B8%D0%BA%D0%B0.jpg",[1180,664]);
+            Utils.createIMG("звук",                  "https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%97%D0%B2%D1%83%D0%BA.jpg",[934,787]);
+            Utils.createIMG("видео",                 "https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%92%D0%B8%D0%B4%D0%B5%D0%BE%20%D0%BD%D0%B0%20%D0%B2%D0%B5%D0%B1-%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B8%D1%86%D0%B0%D1%85.PNG",[1330,784]);
+            Utils.createIMG("совр ооп",              "https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%A1%D0%BE%D0%B2%D1%80%D0%B5%D0%BC%D0%B5%D0%BD%D0%BD%D0%BE%D0%B5%20%D0%9E%D0%9E%D0%9F.PNG",[1015,473]);
+            Utils.createIMG("в паск",                "https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%9E%D0%9E%D0%9F%20%D0%92%20PascalABC.PNG",[1324,480]);
+            Utils.createIMG("кнопка на форм",        "https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%9A%D0%BD%D0%BE%D0%BF%D0%BA%D0%B0_%D0%BD%D0%B0_%D1%84%D0%BE%D1%80%D0%BC%D0%B5_%D0%9F%D0%BE%D0%B4%D1%87%D0%B5%D1%80%D0%BA%D0%BD%D1%83%D1%82%D1%8B%D0%B9_%D0%BE%D0%B1%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D1%87%D0%B8%D0%BA_Click.PNG",[1497,803]);
+            Utils.createIMG("изм цв ф",              "https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%9A%D0%BD%D0%BE%D0%BF%D0%BA%D0%B0.%20%D0%98%D0%B7%D0%BC%D0%B5%D0%BD%D0%B5%D0%BD%D0%B8%D0%B5%20%D1%86%D0%B2%D0%B5%D1%82%D0%B0%20%D1%84%D0%BE%D1%80%D0%BC%D1%8B.PNG",[754,92]);
+            Utils.createIMG("станд эл упр",          "https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%A1%D1%82%D0%B0%D0%BD%D0%B4%D0%B0%D1%80%D1%82%D0%BD%D1%8B%D0%B5%20%D1%8D%D0%BB%D0%B5%D0%BC%D0%B5%D0%BD%D1%82%D1%8B%20%D1%83%D0%BF%D1%80%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D1%8F%20(2).PNG",[1349,390]);
+            Utils.createIMG("форма",                 "https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%A4%D0%BE%D1%80%D0%BC%D0%B0.%20PictureBox.PNG",[1496,631]);
+            Utils.createIMG("комп меню",             "https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%9A%D0%BE%D0%BC%D0%BF%D0%BE%D0%BD%D0%B5%D0%BD%D1%82%D1%8B%20%D0%BC%D0%B5%D0%BD%D1%8E%20(1).jpg",[1112,592]);
+            Utils.createIMG("диаграммы",             "https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%94%D0%B8%D0%B0%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D1%8B.PNG",[999,828]);
+            Utils.createIMG("граф р",                "https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%93%D1%80%D0%B0%D1%84%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D0%B9%20%D1%80%D0%B5%D0%B4%D0%B0%D0%BA%D1%82%D0%BE%D1%80.PNG",[1002,721]);
+            Utils.createIMG("график",                "https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%93%D1%80%D0%B0%D1%84%D0%B8%D0%BA%20%D1%84%D1%83%D0%BD%D0%BA%D1%86%D0%B8%D0%B8.PNG",[776,656]);
+        }
+    }
+    /*
+    Массив в котором последовательно расписаны разделы
+    */
+    var List = new Array();
+    var forExample = {
+        category: 6, //раздел: mod 1,soc 2,web 3,oop 4,search 5, debug 6
+        chapter: "forExample.chapter",   //название
+        opened: false,                   //открыт ли параграф или нет
+        text: [                          //раздел с текстами, сюда записываем буквально все чтоб работал поиск
+            "forExample.text[0]",//0     //так его можно получать. В идеале вместо новой строки использовать \n или если нужен большой пробел то функцию для этого
+            "forExample.text[1]",//1
+            "forExample.text[2]",//2
+            "Открыть гугл",      //3 и так далее, так работают массивы
+        ],
+        draw(){                      //то что внутри каждого параграфа
+            Utils.drawText(forExample.text[0]);
+            Utils.drawSpace();
+            Utils.drawText(forExample.text[3]);
+            Utils.drawImage("виды моделей");
+            Utils.drawButtonHREF(forExample.text[3],"https://google.com/");//ссылку необязательно в раздел c текстом
+        }
+    }
+    List.push(forExample);//чтоб рендерилось.
+    //Можно поступить как я и сразу запихать через push() но тогда надо иметь this. на борту
+    List.push({
+        category: 1,
+        chapter: "Модели и формы их представления",
+        opened: false,
+        text: [ 
+            "Модель - объект или процесс, который для различных целей рассматривается вместо другого объекта или процесса. На данный момент широко распространены компьютерные модели, представляющие собой информационную модель в виде файла на компьютерном носителе и ее изображение на экране компьютера.",
+            "Создание и использование моделей для решения научных и практических задач называется моделированием."
+        ],
+        draw(){
+            Utils.drawText(this.text[0]);
+            Utils.drawText(this.text[1]);
+            Utils.drawImage("виды моделей");
+            Utils.drawImage("виды инф моделей");
+        }
+    });
+    List.push({
+        category: 1,
+        chapter: "Цели компьютерного моделирования",
+        opened: false,
+        text: [],
+        draw(){
+            Utils.drawImage("цели");
+        }
+    });
+    List.push({
+        category: 1,
+        chapter: "Современное моделирование",
+        opened: false,
+        text: [
+            "Моделирование в научных исследованиях стало применяться еще в глубокой древности и постепенно захватывало все новые области научных знаний: техническое конструирование, строительство и архитектуру, астрономию, физику, химию, биологию и, наконец, общественные науки. Большие успехи и признание практически во всех отраслях современной науки принес методу моделирования ХХ в.\n",
+            "Актуальность компьютерного моделирования состоит в том, что методами компьютерного моделирования пользуются специалисты практически всех отраслей и областей науки и техники - от истории до космонавтики, поскольку с их помощью можно прогнозировать и даже имитировать явления, события или проектируемые предметы в заранее заданных параметрах.\n",
+            "В современном моделировании реализуется системных подход, состоящий в том, что моделируемый объект представляется в модели как система, т.е. совокупности объектов. Элементы системы могут быть естественными (существующие и просто выделяемые) и искусственными объектами (несуществующие условные единицы).",
+            "Математическая модель системы называется динамической, если она учитывает изменение времени.\n",
+            "Под компьютерным моделированием будем понимать процесс построения, изучения и применения моделей, объектов, изучаемых в технике, медицине, искусстве и других областях деятельности людей, с помощью компьютеров и компьютерных устройств.\n Стоит также отметить, что на данный момент широкое распространение получает трехмерное моделирование. Заключается оно в том, что необходимый объект представляется в виде трехмерной модели. Эта технология получила широкое распространение в современной архитектуре и 3D-печати, а также в киноиндустрии. Например, архитекторы создают компьютерные модели городов или отдельных райнов, монтажеры создают невероятные спецэффекты для фильмов, 3D-принтер на основе загруженной в него модели создает физический предмет."],
+        draw(){
+            Utils.drawText(this.text[0]);
+            Utils.drawSpace();
+            Utils.drawText(this.text[1]);
+            Utils.drawSpace();
+            Utils.drawText(this.text[2]);
+            Utils.drawSpace();
+            Utils.drawText(this.text[3]);
+            Utils.drawSpace();
+            Utils.drawText(this.text[4]);
+        }
+    });
+    List.push({
+        category: 1,
+        chapter: "Элементы построения динамических моделей систем",
+        opened: false,
+        text: [],
+        draw(){
+            Utils.drawImage("элемент построения");
+        }
+    });
+    List.push({
+        category: 1,
+        chapter: "Задачи",
+        opened: false,
+        text: [ 
+                "Биологическая задача","https://docs.google.com/presentation/d/1xZ-Kjm-IQ8J3Nc11SkRGUcynFERs9Z4W",
+                'Игра в рулетку',"https://docs.google.com/presentation/d/1QE4D1X0t19VKy0leNn1Kh66YDtoI5PxV",
+                "Метод Монте-Карло","https://docs.google.com/presentation/d/1lR_mByzcx767g535pgJj-cTTjQhp7KIy",
+                "Выбор железнодорожной станции","https://docs.google.com/presentation/d/1xEO0_Q-2TImHJcqm01UYqeCMM7cX0Bmp",
+                "Биоритмы человека","https://docs.google.com/presentation/d/1e3LIb2nT9BwySvrWJ9_ZfL3DYuYhHwK3",
+                "Финансовая задача","https://docs.google.com/presentation/d/1IfwhhvGYRwGBIwpowtcrOeRWmI69y4L7",
+                "Шифрование","https://docs.google.com/presentation/d/1z2ZYDpVzQn0jZfqZznnnC-UnNt07KjP0",
+                "Экологическая задач","https://docs.google.com/presentation/d/16fR8neMUwvilAV9FYPehzKhXXHllRYfu",
+                "Температурные режимы","https://docs.google.com/presentation/d/1-8gMTk-qHQUpjJL8CeKAVO3Dz_jIEPJy",
+                "Транспортная задача","https://eior.by/catalog_lecture/11-klass/informatika/19.php",
+                "Движение тела в воздухе","https://eior.by/catalog_lecture/11-klass/informatika/20.php",
+                "Деление клеток","https://drive.google.com/file/d/1UKlpA24C0u4HetBHAO2nSd7dn-KkEvke/view",
+                "График тренировок","https://drive.google.com/file/d/1Rr-ogxz-cplCigKf00lUXfjYSWO-pf36/view",
+                "Вертикально броошенный мяч","https://drive.google.com/file/d/1BXp8Iz0jqMFsmr8T1NaPEvqhvtogY_d1/view",
+                "Исследование массива температур","https://drive.google.com/file/d/1cMfC1ris91VPgUSDrxqzX-iqqIc1FInX/view",
+                "Моделирование полета тела","https://drive.google.com/file/d/10j5IrGNQ9CZVboju45TpHQ5yXuUUZ4qo/view",
+                "Обои и комната","https://drive.google.com/file/d/1BhWjgwZjaBbqR4qeXD9dY0bm2QpJzHVa/view",
+                "Совместимость по биоритмам","https://drive.google.com/file/d/1dj7CMbou_j0Q4pWreXa8zjPUXvaswa-D/view",
+                "Задача роста и убывания","https://drive.google.com/file/d/1Q_zP5g9WNrXw32K409s4Iiim-N6DZotd/view",
+                "Динамика численности популяций","https://eior.by/catalog_lecture/11-klass/informatika/14.php",
+        ],
+        draw(){
+            //xD
+            this.text.forEach((e,i,a)=>{
+                i%2==0?Utils.drawButtonHREF(e,a[i+1]):0;
+            })
+        }
+    });
+    List.push({
+        category: 1,
+        chapter: "Теория",
+        opened: false,
+        text: [ 
+            "Компьютерное моделирование","https://ru.wikipedia.org/wiki/%D0%9A%D0%BE%D0%BC%D0%BF%D1%8C%D1%8E%D1%82%D0%B5%D1%80%D0%BD%D0%BE%D0%B5_%D0%BC%D0%BE%D0%B4%D0%B5%D0%BB%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5",
+            "Компьютерное информационные модели","https://eior.by/catalog_lecture/11-klass/informatika/10.php",
+            "Проектирование интерфейса оконного приложения с использованием элементов управления","https://eior.by/catalog_lecture/11-klass/informatika/2.php",
+            "Моделирование случайных событий. Метод Монте-Карло","https://eior.by/catalog_lecture/11-klass/informatika/11.php",
+            "Вычисление значения числа Pi методом Монте-Карло","https://eior.by/catalog_lecture/11-klass/informatika/12.php",
+            "Вычисление площади фигуры методом Монте-Карло","https://eior.by/catalog_lecture/11-klass/informatika/13.php",
+            "Модель «хищник-жертва»","https://eior.by/catalog_lecture/11-klass/informatika/15.php",
+            "Моделирование динамики численности популяций","https://bit.ly/3NVfMK4",
+            "Моделирование в задачах преследования","https://drive.google.com/file/d/1Epijn0_RtkHD3vR9J_YM6AO8xu2f_He3",
+            "3D-моделирование интерьеров. Модель строительной оболочки","https://eior.by/catalog_lecture/11-klass/informatika/16.php",
+            "Моделирование в экономических задачах","https://eior.by/catalog_lecture/11-klass/informatika/18.php"
+        ],
+        draw(){
+            //вам не понять насколько я гений
+            this.text.forEach((e,i,a)=>{
+                i%2==0?Utils.drawButtonHREF(e,a[i+1]):0;
+            }) 
+        }
+    });
+    List.push({
+        category: 1,
+        chapter: "Тесты",
+        opened: false,
+        text: [ 
+                "Компьютерные информационные модели","https://docs.google.com/forms/d/e/1FAIpQLSf0ffQ7AQ_E_exh3ujpR4RCegtc5wEdr9wM6a8vFGoOPP_Zgw/viewform",
+                "Проектирование интерфейса оконного приложения с использованием элементов управления","https://docs.google.com/forms/d/e/1FAIpQLSeBJ57VLAcZn58Y15Gl8xuu5wuwD0n9nrAtqEP2AYK-sfGPJQ/viewform",
+                "Моделирование случайных событий. Метод Монте-Карло","https://docs.google.com/forms/d/e/1FAIpQLSdLhAfy4umZ-D4CtJae8uDuN-EwcGrEWgFWDDPqoosjTOhz9A/viewform",
+                "Вычисление значения числа pi методом Монте-Карло","https://docs.google.com/forms/d/e/1FAIpQLSczVHhPz0FYuM5if1HYrs3qZFX_N-gWG-Gm36YPFoGa_b1_IA/viewform",
+                "Вычисление площади фигуры методом Монте-Карло","https://docs.google.com/forms/d/e/1FAIpQLSdtcaHJhO27LcuenfDtrG1iAfEzrpvI5GxJjNm2cu8eaR0wHw/viewform",
+                "Моделирование динамики численности популяций","https://docs.google.com/forms/d/e/1FAIpQLScKMCGDugu8TQcZGciILpkXYX450Jg3KdvRS26K1LaIhp3zGw/viewform",
+                "Модель строительной оболочки","https://docs.google.com/forms/d/e/1FAIpQLSc3ZieHDONwY5JDSv9e8Sbd6xxA3h7Ni_dAjBEe_CTsJplmbw/viewform",
+                "Модели предметного наполнения","https://docs.google.com/forms/d/e/1FAIpQLSfNk4mhKCnK2SC1L_oIO54P9b99AFMejkI7uT5_HoczFQbzPw/viewform",
+                "Моделирование в экономических задачах","https://docs.google.com/forms/d/e/1FAIpQLSdjYIgv8QdON7STIU2ydsJ9P4Xl1_IeeLCAFio5dd0SPPUXpQ/viewform",
+                "Транспортная задача","https://docs.google.com/forms/d/e/1FAIpQLSe6dIJ05epdQ23KHLAYe9dJa2LpnEDvDIx4t7rNniDCgB6ySw/viewform",
+                "Моделирование движения тела в воздухе","https://docs.google.com/forms/d/e/1FAIpQLSeLMqTMA5qbZoX4nojitCa2D3foThMt1v24whO2QolYmtGW1g/viewform",
+        ],
+        draw(){
+            //я уже говорил, что я гений?
+            this.text.forEach((e,i,a)=>{
+                i%2==0?Utils.drawButtonHREF(e,a[i+1]):0;
+            })
+        }
+    });
+
+    List.push({
+        category: 2,
+        chapter: "Информационные системы, технологии",
+        opened: false,
+        text: [ 
+            "Реальные объекты и явления, наблюдаемые нами в мире, очень сложные, поэтому их принято рассматривать в виде системы. Система состоит из нескольких элементов, каждый выполняет свою функцию. Для лучшего понимания темы предлагаем рассмотреть следующую таблицу с примерами:"
+        ],
+        draw(){
+            Utils.drawText(this.text[0]);
+            Utils.drawImage("разнообразие систем");
+        }
+    });
+    List.push({
+        category: 2,
+        chapter: "Информационная система",
+        opened: false,
+        text: [ 
+            "В современном обществе широко распространено такое явление, как информационная система. Информационная система - это система, элементами которой являются данные, технические средства, специалисты, а связи образуются благодаря потокам информационных процессов.",
+            "Современные информационные системы являются автоматизированными, вот некоторые примеры:"
+        ],
+        draw(){
+            Utils.drawText(this.text[0]);
+            Utils.drawSpace();
+            Utils.drawText(this.text[1]);
+            Utils.drawImage("та самая таблица 2 XD");
+        }
+    });
+    List.push({
+        category: 2,
+        chapter: "Информационные технологии в обществе",
+        opened: false,
+        text: [ 
+            "Информационная технология - совокупность способов, приемов и методов сбора, обработки и передачи данных. Такие технологии применяются во всех областях человеческой деятельности, а их инструментами являются аппаратное, программное и математическое обеспечение. Технологический процесс разбивают на этапы. Каждый этап состоит из операций и действий, приводящих к получению пользователем того, что он ожидает получить.",
+            "Для того чтобы использовать информационные технологии грамотно, нам необходимо узнать их классификацию из специальной таблицы ниже:"
+        ],
+        draw(){
+            Utils.drawText(this.text[0]);
+            Utils.drawSpace();
+            Utils.drawText(this.text[1]);
+            Utils.drawImage("та самая таблица 3 XD");
+        }
+    });
+    List.push({
+        category: 2,
+        chapter: "Информатизация общества",
+        opened: false,
+        text: [ 
+            "Основой информационного общества является широкое использование информационных технологий во всех сферах деятельности человека. Такое общество отличается от индустриального высоким развитием информатики.",
+            "Информатизация - организационный социально-экономический и научно-технический процесс создания оптимальных условий для удовлетворения информационных потребностей людей.",
+            "Важным в информатизации является наличие информационной культуры - совокупности знаний и умений человека, представленной в виде правил его поведения в информационном обществе.",
+        ],
+        draw(){
+            Utils.drawText(this.text[0]);
+            Utils.drawSpace();
+            Utils.drawText(this.text[1]);
+            Utils.drawSpace();
+            Utils.drawText(this.text[2]);
+        }
+    });
+    List.push({
+        category: 2,
+        chapter: "Виртуальная реальность",
+        opened: false,
+        text: [ 
+            "Неотъемлемой частью современного мира становятся технологии виртуальной и дополненной реальности.",
+            "Виртуальная реальность - созданный техническими средствами мир, передаваемый человеку через его ощущения. Для погружения в неё используйте шлемы, очки или комнаты виртуальной реальности.",
+            "Дополненная реальность - технологии, которые дополняют реальный мир, добавляя любые сенсорные данные. Чтобы испытать такое на себе, достаточно обзавестись очками или шлемом дополненной реальности, можно также использовать смартфон или планшет.",
+            "Сфера применения таких технологий достаточно широка - им находят применение в медицине, образовании, инженерии и сфере развлечений.",
+            "Новейшие достижения этих технологий указаны ниже: "
+        ],
+        draw(){
+            Utils.drawText(this.text[0]);
+            Utils.drawSpace();
+            Utils.drawText(this.text[1]);
+            Utils.drawSpace();
+            Utils.drawText(this.text[2]);
+            Utils.drawSpace();
+            Utils.drawText(this.text[3]);
+            Utils.drawSpace();
+            Utils.drawText(this.text[4]);
+            Utils.drawImage("достижения");
+        }
+    });
+    List.push({
+        category: 2,
+        chapter: "Образование и профессиональная деятельность в информационном обществе",
+        opened: false,
+        text: [ 
+            "В современном мире ключевое значение имеют знания. Для обозначения этого феномена используется термин «общество знаний». Его характерные черты указаны в таблице:",
+            "В «обществе знаний» инофрмационные технологии являются средством получения и усваивания новой информации.",
+            "На основе владения информацией о самых различных процессах и явлениях можно эффективно и оптимально строить любую деятельность. При этом повышается не только качество потребления, но и качество производства: человек, использующий информационные технологии, имеет лучшие условия труда. Основным критерием развитости информационного общества можно считать количество населения, занятого в информационной сфере и использующего информационные и коммуникационные технологии в своей повседневной деятельности. В настоящее время достаточно много интернет-ресурсов предлагают обзоры профессий, которые будут актуальными в ближайшее время. Примеры таких должностей указаны ниже: "
+        ],
+        draw(){
+            Utils.drawText(this.text[0]);
+            Utils.drawImage("черты");
+            Utils.drawText(this.text[1]);
+            Utils.drawSpace();
+            Utils.drawText(this.text[2]);
+            Utils.drawImage("работы");
+        }
+    });
+    List.push({
+        category: 2,
+        chapter: "Сетевой этикет",
+        opened: false,
+        text: [ 
+            "Сетевой этикет - это система правил, созданная людьми для общения друг с другом в сети Интернет. Этикет общения в Интернете рекомендуется соблюдать новичкам и опытным пользователям для комфорта. Однозначно сказать, что такое сетевой этикет невозможно, но в большинстве случаев это правила хорошего тона, общепринятые среди людей.",
+            "Соблюдение правил хорошего тона повышает авторитет собеседника и привлекает внимание.",
+            "Чтобы ответить на вопрос, как общаться в Интернете, следует узнать, что не рекомендуется делать. Сетевой этикет подразумевает отказ от следующих действий: ",
+            "Вместо всего вышеперечисленного, лучше показать себя культурным и приличным человеком, придерживаясь базовых правил сетевого этикета:"
+        ],
+        draw(){
+            Utils.drawText(this.text[0]);
+            Utils.drawSpace();
+            Utils.drawText(this.text[1]);
+            Utils.drawSpace();
+            Utils.drawText(this.text[2]);
+            Utils.drawImage("этикет");
+            Utils.drawText(this.text[3]);
+            Utils.drawImage("базовые прв эт");
+        }
+    });
+    List.push({
+        category: 2,
+        chapter: "Кибербезопасность",
+        opened: false,
+        text: [ 
+            "В современном информационном обществе самым важным ресурсом являются данные. Их утечка или утеря могут создать много трудностей как рядовым пользователям, так и крупным компаниям. Именно поэтому так важно задумываться о безопасности и сохранности своих данных в сети.",
+            "Кибербезопасность - это состояние защищенности информационной инфраструктуры и содержащейся в ней информации от внешних и внутренних угроз.",
+        ],
+        draw(){
+            Utils.drawText(this.text[0]);
+            Utils.drawSpace();
+            Utils.drawText(this.text[1]);
+        }
+    });
+    List.push({
+        category: 2,
+        chapter: "Уязвимости",
+        opened: false,
+        text: [ 
+            "Уязвимость - свойство информационной инфраструктуры или её объектов, которое позволяет реализовать угрозу. Факторы уязвимостей приведены ниже:",
+            "Таким образом, происходит переход в состояние киберустойчивости - способности информационной инфраструктуры успешно и предотвращать реализацию угроз, и быстро восстанавливаться.",
+            "Для обеспечения киберустойчивости необходимо принять следующие меры:",
+        ],
+        draw(){
+            Utils.drawText(this.text[0]);
+            Utils.drawImage("факторы уязв");
+            Utils.drawText(this.text[1]);
+            Utils.drawSpace();
+            Utils.drawText(this.text[2]);
+            Utils.drawImage("меры");
+        }
+    });
+    List.push({
+        category: 2,
+        chapter: "Профессии, связанные с кибербезопасностью",
+        opened: false,
+        text: [ 
+            "Информационная безопасность - одно из самых перспективных направлений в сфере ИТ. Профессионалы в области кибербезопасности защищают компании от утечек данных и прочих угроз. Ниже представлены некоторые основные специализации:"
+        ],
+        draw(){
+            Utils.drawText(this.text[0]);
+            Utils.drawImage("профессии");
+        }
+    });
+    List.push({
+        category: 2,
+        chapter: "Кибератаки",
+        opened: false,
+        text: [ 
+            "Кибератака - умышленное воздействие на информационную структуру с помощью программ."
+        ],
+        draw(){
+            Utils.drawText(this.text[0]);
+            Utils.drawImage("виды кбат");
+        }
+    });
+    List.push({
+        category: 2,
+        chapter: "Киберустойчивость",
+        opened: false,
+        text: [ 
+            "Кибербезопасность требует грамотного обеспечения: наличия системы мер защиты информационной инфраструктуры и противодействия угрозам информационной безопасности.",
+            "Таким образом происходит переход в состояние киберустойчивости - способности информационной инфраструктуры успешно предотвращать реализацию угроз или быстро восстанавливаться после их реализации.",
+        ],
+        draw(){
+            Utils.drawText(this.text[0]);
+            Utils.drawSpace();
+            Utils.drawText(this.text[1]);
+        }
+    });
+    List.push({
+        category: 2,
+        chapter: "Теория",
+        opened: false,
+        text: [ 
+                "Информационные системы и технологии","https://drive.google.com/file/d/1IufwBqpSopSOLmnk5BxXj7tIiSVD_4N2",
+                'Кибербезопасность - это взаимодействие людей',"https://drive.google.com/file/d/1-Myd6mQLEEoDdFhMbmk13fe4pvbvYnr-",
+                'Технологии будущего',"https://drive.google.com/file/d/1baXO9NqszIi3lVy6uhNEFsQF3axi9sQS",
+                'Жертвы компьютерного мошенничества',"https://drive.google.com/file/d/1K0TVaIMKXgINJmEwYeIfHWF_IbqCwLIg",
+                'Законодательство РБ в области Кибербезопасности',"https://drive.google.com/file/d/1shlp8fN6YE2PNV1LD4rYcJjoWbV-frdv",
+                'Как обезопасить себя',"https://drive.google.com/file/d/1-CnX33qoADJgOkhcD1luvBrwj9Abi9oU",
+                'Как справляться с грубостью',"https://drive.google.com/file/d/12Z1ofXU-YVeyKlpU0hNBL3hZvQNxa0_u",
+                'Интернет-безопасность детей',"https://drive.google.com/file/d/1OPklRcs3dWdmE9bwUysiX_oCf14Fkp7y",
+                'Глоссарий',"https://drive.google.com/file/d/1J6fCrQpCky4ALH5Yt1hQN29FTok9XaOd",
+                'Кибербезопасность и киберустойчивость',"https://docs.google.com/presentation/d/1I5RlpXqw4_v1mT2BkQZpsZhGEBIBfgJH",
+                'Информатизация общества и образование',"https://docs.google.com/presentation/d/1SnbABvjVpWTg6s-q1KmTyyNg7DDTpelM",
+                'Информационные системы, технологии и ресурсы',"https://docs.google.com/presentation/d/1_pUspOgvGJpa-X7GaKf4KYdR_kI-3PCu"
+        ],
+        draw(){
+            //да да я гений
+            this.text.forEach((e,i,a)=>{
+                i%2==0?Utils.drawButtonHREF(e,a[i+1]):0;
+            }) 
+        }
+    });
+    List.push({
+        category: 2,
+        chapter: "Тесты",
+        opened: false,
+        text: [ 
+                "Безопасность в сети Интернет","https://docs.google.com/forms/d/e/1FAIpQLSft0zf_ca1F2lwglCmh-GW8KQfv8e49VgZegJ77Ue9tus-D5g/viewform",
+                "Информационные системы, технологии и ресурсы","https://docs.google.com/forms/d/e/1FAIpQLScmeF8lUhvnknH5-DX5LbgPT_j6vUiwpLLuPfGKy04125T4hA/viewform",
+                "Информатизация общества. Образование и профессиональная деятельность в информационном обществе","https://docs.google.com/forms/d/e/1FAIpQLSdd5t2Hy33FJ4XZZcw9g69NnZuFGXGchZdkVoh1bGgwYttgog/viewform"
+        ],
+        draw(){
+            //моя гениальность не имеет границ
+            this.text.forEach((e,i,a)=>{
+                i%2==0?Utils.drawButtonHREF(e,a[i+1]):0;
+            })
+        }
+    });
+
+    List.push({
+        category: 3,
+        chapter: "Веб-сайт",
+        opened: false,
+        text: [ 
+            "Веб-сайт представляет собой группу веб-страниц, связанных между собой гиперссылками. Существует четыре основных типа веб-сайтов:",
+            "Презентационные - реклама и продвижение определенных услуг и акций.",
+            "Корпоративные - представляют компанию или предприятие.",
+            "Онлайн-сервисы - направлены на повседневные нужды.",
+            "Электронные магазины - созданы для получения прибыли от продажи товаров.",
+            "По технологии создания сайты делят на статические (информация хранится на сервере и отображается в браузере в одном и том же виде) и динамические (частично, а то и полностью генерируются в браузере или на сервере в процессе исполнения запроса пользователя).",
+            "Также сайты разделяют в зависимости от типа взаимодействия с пользователем. Бывают пассивные сайты (информацию на них можно только просматривать) и интерактивные (предусмотрена возможность обмена данными с сервером).",
+            "Все веб-страницы являются гипертекстовыми документами. Язык HTML (HyperText Markup Language) является одним из самых распространенных языков создания веб-сайтов. На этом языке задаются параметры и структура веб-страниц. Документы, написанные на языке HTML, имеют расширение .html. Основные компоненты этого языка - теги и атрибуты.",
+            "Теги - набор специальных символов языка HTML, которые идентифицируют html-документ, задают параметры страницы, определяют разделы и положение элементов на ней.",
+            "<html> - идентифицирует код html-документ, в него входят контейнеры <head> и <body>.",
+            "<head> - содержит название документа, теги для поисковых машин. Эти данные не будут отображаться на исходной веб-странице.",
+            "<body> - контейнер, который содержит отображающуюся на странице информацию.",
+        ],
+        draw(){
+            Utils.drawText(this.text[0]);
+            Utils.drawSpace();
+            for(let i = 1;i<5;i++){
+                ImGui.BulletText("  " + this.text[i]);//редкий случай когда используется. Поэтому не делал в Utils
+            }
+            Utils.drawText(this.text[5]);
+            Utils.drawSpace();
+            Utils.drawText(this.text[6]);
+            Utils.drawSpace();
+            Utils.drawText(this.text[7]);
+            Utils.drawSpace();
+            Utils.drawText(this.text[8]);
+            Utils.drawSpace();
+            for(let i = 9;i<12;i++){
+                ImGui.BulletText("  " + this.text[i]);
+            }
+            Utils.drawImage("облако");
+        }
+    });
+    List.push({
+        category: 3,
+        chapter: "Создание веб-страниц",
+        opened: false,
+        text: [ 
+            "Важно понимать, что для создания веб-сайта важно не столько знание самого языка программирования, сколько излагающейся на сайте темы. Чтобы создать свой веб-сайт, достаточно воспользоватьмся протстым блокнотом, который есть на каждом компьютере, или другим текстовым редактором, или специальной программой для написания html-кода, или визуальным веб-редактором, или специальным конструктором сайтов. В случае с двумя последними создание веб-страниц окажется даже легче, ведь для работы с ними в принципе нет необходимости знать языка HTML. При работе с текстовым редактором документ нужно сохранять с расширением .html.",
+            "Любая веб-страница содержит следующие элементы",
+            "Заголовок (часто - логотип)",
+            "Основная часть (размещение контента)",
+            "Элементы навигации (например, меню)",
+            "Нижний колонтитул (размещение информации о разработчике или контактных данных)",
+            "Боковые панели (размещение ссылок, рекламы и т.д)",
+        ],
+        draw(){
+            Utils.drawText(this.text[0]);
+            Utils.drawSpace();
+            Utils.drawText(this.text[1]);
+            Utils.drawSpace();
+            for(let i = 2;i<=6;i++){
+                ImGui.BulletText("  " + this.text[i]);
+            }
+        }
+    });
+    List.push({
+        category: 3,
+        chapter: "Каскадные таблицы стилей",
+        opened: false,
+        text: [ 
+            "CSS (Cascading Style Sheets) - формальный язык описания внешнего вида документа. CSS дополняет возможности HTML.",
+            "Вынесение стилей документа в отдельный файл значительно упрощает создание веб-сайтов, поскольку отпадает необходимость отдельно прописывать параметры для каждого элемента веб-страницы.",
+            "Способы подключения CSS к документу:",
+            "Встроенные стили - непосредственно в открывающем теге.",
+            "Таблицы стилей - стилевое описание для всех идентичных элементов. Задаются тегом <style>.",
+            "Внешние таблицы стилей - отдельные файлы с расширением .css, которые содержат стилевые правила."
+        ],
+        draw(){
+            Utils.drawText(this.text[0]);
+            Utils.drawSpace();
+            Utils.drawText(this.text[1]);
+            Utils.drawSpace();
+            Utils.drawText(this.text[2]);
+            Utils.drawSpace();
+            for(let i = 3;i<=5;i++){
+                ImGui.BulletText("  " + this.text[i]);
+            }
+            Utils.drawImage("снимок");
+        }
+    });
+    List.push({
+        category: 3,
+        chapter: "Графика на веб-страницах",
+        opened: false,
+        draw(){
+            Utils.drawImage("графика");
+        }
+    });
+    List.push({
+        category: 3,
+        chapter: "Звук на веб-страницах",
+        opened: false,
+        draw(){
+            Utils.drawImage("звук");
+        }
+    });
+    List.push({
+        category: 3,
+        chapter: "Видео на веб-страницах",
+        opened: false,
+        draw(){
+            Utils.drawImage("видео");
+        }
+    });
+    List.push({
+        category: 3,
+        chapter: "Этапы создания веб-сайта",
+        opened: false,
+        text: [ 
+            "Создание веб-сайта - это не только написание кода. Это процесс, включающий в себя следующие основные этапы.",
+            "Проектирование (поставить цели и задачи сайта).",
+            "Разработка структуры (грамотно распределить информацию по веб-страницам).",
+            "Создание дизайна (продумать графическую составляющую, цветовую палитру сайта).",
+            "Создание мультимедиа-компонентов (создать графическую и звуковую составляющую, видео).",
+            "Верстка страниц и шаблонов (создать html-код).",
+            "Программирование (при создании сложного многофункционального сайта).",
+            "Наполнение контентом.",
+            "Тестирование и внесение корректировок.",
+            "Публикация сайта на хостинге.",
+            "Дальнейшее обслуживание.",
+        ],
+        draw(){
+            Utils.drawText(this.text[0]);
+            Utils.drawSpace();
+            for(let i = 1;i<=10;i++){
+                ImGui.BulletText("  " + this.text[i]);
+            }
+        }
+    });
+    List.push({
+        category: 3,
+        chapter: "Теория",
+        opened: false,
+        text: [ 
+                "Информационные системы и технологии","https://drive.google.com/file/d/1IufwBqpSopSOLmnk5BxXj7tIiSVD_4N2",
+                'Основы веб-конструирования',"https://eior.by/catalog_lecture/11-klass/informatika/5.php",
+                'Создание веб-страниц',"https://eior.by/catalog_lecture/11-klass/informatika/6.php",
+                'Рефлексия урока',"https://drive.google.com/file/d/1VHuRNjjrJQ0-FZwIOmmHJ46zNZz-FGIx",
+                'Понятие о каскадных таблицах стилей',"https://eior.by/catalog_lecture/11-klass/informatika/7.php",
+                'Визуальное веб-конструирование',"https://eior.by/catalog_lecture/11-klass/informatika/9.php",
+                'Презентация по каскадным таблицам стилей',"https://drive.google.com/file/d/1sJPRTesd655-3L1tFxOAwPAjh9__wmgk/view",
+                'Визуальное веб-конструирование',"https://eior.by/catalog_lecture/11-klass/informatika/9.php",
+                'Взаимосвязь веб-программирования, веб-разработки и веб-технологий',"https://drive.google.com/file/d/1kTzi87pLt6t5DorDukwRBRz7-piqJ-ng"
+        ],
+        draw(){
+            //ыыыыыыыыыыыыыы
+            this.text.forEach((e,i,a)=>{
+                i%2==0?Utils.drawButtonHREF(e,a[i+1]):0;
+            }) 
+        }
+    });
+    List.push({
+        category: 3,
+        chapter: "Тесты",
+        opened: false,
+        text: [ 
+            'Основные понятия',"https://docs.google.com/forms/d/e/1FAIpQLScePAZBecVAkamQxLG7TR19FlFgpW6gGXiDA7slii3rLtmw-A/viewform",
+            'Основы веб-конструирования',"https://docs.google.com/forms/d/e/1FAIpQLSfRCyPfSKewAYtlG4DTo1FMfZbJ_uLrr7IA_i3OmDozTHSK6A/viewform",
+            'Создание веб-страниц',"https://docs.google.com/forms/d/e/1FAIpQLSdxIBpix5-EDnMH9OfGyPwqJBZv0B73WGsa0ZLkre3yiPgJcw/viewform",
+            'Вопросы по созданию веб-страниц',"https://drive.google.com/file/d/1lZvriE1KrmQeFLzNFWhNhbwPV8HtBKc_/view",
+            'Понятие о каскадных таблицах стилей',"https://docs.google.com/forms/d/e/1FAIpQLSe_VEuPDF51ajWxmLwGeGJhHvp8JvLSYf7Rd0mXosYqoR-VRA/viewform?hr_submission=ChkI78m4ooMQEhAIxZn3l8sMEgcI05G8raQLEAE",
+            'Визуальное веб-конструирование',"https://docs.google.com/forms/d/e/1FAIpQLSdOQsFwueu893eiDntPn3AHc6BVUOxiqAyLafo7-D28D2C8Ww/viewform?hr_submission=ChkI78m4ooMQEhAIvr_eu8cMEgcI05G8raQLEAA",
+            'Мультимедиа на веб-страницах',"https://docs.google.com/forms/d/e/1FAIpQLSd_rCOkcA8b_STHTw7jF3g6qrT7l41lex2ypT3zjb7nWap4zw/viewform?hr_submission=ChkI78m4ooMQEhAI6KKjx-UMEgcI05G8raQLEAE",
+            'Визуальное веб-конструирование',"https://docs.google.com/forms/d/e/1FAIpQLSdOQsFwueu893eiDntPn3AHc6BVUOxiqAyLafo7-D28D2C8Ww/viewform?hr_submission=ChkI78m4ooMQEhAIvr_eu8cMEgcI05G8raQLEAA",
+        ],
+        draw(){
+            //КТО ТУТ ГЕНИЙ???
+            this.text.forEach((e,i,a)=>{
+                i%2==0?Utils.drawButtonHREF(e,a[i+1]):0;
+            })
+        }
+    });
+
+    List.push({
+        category: 4,
+        chapter: "ООП",
+        opened: false,
+        text: [ 
+            "Объектно-ориентированное программирование (ООП) - технология создания программ, в основе которой лежит использование объектов, являющихся экземпляром определенного класса, и методов, характеризующих их поведение."
+        ],
+        draw(){
+            Utils.drawText(this.text[0]);
+            Utils.drawImage("совр ооп");
+        }
+    });
+    List.push({
+        category: 4,
+        chapter: "ООП в Pascal",
+        opened: false,
+        text: [ 
+            "Рассмотрим ООП на примере PascalABC.",
+            "Разместим на форме кнопку. Чтобы создать обработчик события для нажатия на кнопку левой клавишей мыши, нужно сначала одним щелчком мыши выделить кнопку, а затем во вкладке «События» двойным щелчком выбрать событие мыши Click.",
+            "После во вкладке «код» необходимо прописать, что именно будет происходить при совершении события. В этом случае мы указываем, что при событии Click будет происходить изменение цвета формы."
+        ],
+        draw(){
+            Utils.drawText(this.text[0]);
+            Utils.drawImage("в паск");
+            Utils.drawText(this.text[1]);
+            Utils.drawSpace();
+            Utils.drawText(this.text[2]);
+            Utils.drawImage("кнопка на форм");
+            Utils.drawImage("изм цв ф");
+        }
+    });
+    List.push({
+        category: 4,
+        chapter: "Стандартная библиотека элементов в PascalABC",
+        opened: false,
+        draw(){
+            Utils.drawImage("станд эл упр");
+        }
+    });
+    List.push({
+        category: 4,
+        chapter: "PictureBox",
+        opened: false,
+        text: [ 
+            "Также на языке Pascal возможна работа с графикой. Для организации взаимодействия пользователя с графикой используется компонент PictureBox. Этот компонент является контейнером, в который помещается изображение.",
+            "Чтобы вставить картинку, нужно выбрать свойство Image компонента PictureBox и вставить картинку из файлов компьютера.",
+            "Если нас не удовлетворяет вид вставленной картинки, то можно внести изменение в свойство SizeMode, отвечающее за способ ее отображения.",
+            "Zoom (в случае изменения размеров контейнера будут сохраняться пропорции изображения).",
+            "AutoSize (размер контейнера будет автоматически подгоняться под размер рисунка).",
+            "Normal (левый верхний угол рисунка совмещен с левым верхним углом контейнера).",
+            "StretchImage (рисунок вписывается в контейнер).",
+            "CenterImage (рисунок будет отцентрирован относительно компонента)."
+        ],
+        draw(){
+            Utils.drawText(this.text[0]);
+            Utils.drawSpace();
+            Utils.drawText(this.text[1]);
+            Utils.drawImage("форма");
+            Utils.drawText(this.text[2]);
+            Utils.drawSpace();
+            for(let i = 3;i<=7;i++){
+                ImGui.BulletText("  " + this.text[i]);
+            }
+        }
+    });
+    List.push({
+        category: 4,
+        chapter: "Диалоговые окна и меню",
+        opened: false,
+        text: [ 
+            "Диалоговые окна можно организовать в меню. Существует несколько типов меню",
+            "Главное меню с выпадающими списками разделов.",
+            "Каскадные меню, в которых разделу первичного меню ставится в соответствие список подразделов.",
+            "Контекстные меню, появляющиеся при нажатии правой клавишей мыши на объект.",
+            "В PascalABC.Net меню создаются компонентами MenuStrip и ContextMenuStrip, расположенными на панели «Меню и панели инструментов».",
+            "Сами компоненты размещаются в специальной области под формой. На этапе выполнения программы главное меню будет помещено на стандартное место - верхнюю часть формы. Для добавления новых пунктов меню нужно кликнуть левой клавишей мыши в верхней части формы и заполнить ячейки, соответствующие пунктам меню. Каждый пункт меню является отдельным объектом, основным событием которого является Click."
+        ],
+        draw(){
+            Utils.drawImage("комп меню");
+            Utils.drawText(this.text[0]);
+            Utils.drawSpace();
+            for(let i = 1;i<=3;i++){
+                ImGui.BulletText("  " + this.text[i]);
+            }
+            Utils.drawText(this.text[4]);
+            Utils.drawText(this.text[5]);
+        }
+    });
+    List.push({
+        category: 4,
+        chapter: "Примеры программ",
+        opened: false,
+        text: [ 
+            "Таким образом, грамотно используя объекты, события и имея простейшие знания в написании кода, можно писать собственные небольшие приложения.",
+            "Это может быть программа строящая диаграммы по заданым параметрам",
+            "Или графический редактор",
+            "Или программу, строящую граффик функции",
+            "Исходный код графического редактора",
+            "Исходный код калькулятора",
+            "Исходный код блокнота"
+        ],
+        draw(){
+            Utils.drawText(this.text[0]);
+            Utils.drawSpace();
+            Utils.drawText(this.text[1]);
+            Utils.drawImage("диаграммы");
+            Utils.drawSpace();
+            Utils.drawText(this.text[2]);
+            Utils.drawSpace();
+            Utils.drawImage("граф р");
+            Utils.drawSpace();
+            Utils.drawText(this.text[3]);
+            Utils.drawSpace();
+            Utils.drawImage("график");
+            //ну тут уже просто :)
+            Utils.drawButtonHREF(this.text[4],"https://drive.google.com/drive/folders/1PukfpEYL232IHijyyKIg0wBJyiShyUk-");
+            Utils.drawButtonHREF(this.text[5],"https://drive.google.com/drive/folders/14n7UayDhFT4uc2xK76fvYeeD35VROhjc");
+            Utils.drawButtonHREF(this.text[6],"https://drive.google.com/drive/folders/1QpFV0zHdfJJRUaicUebHSUbHEAxDgB9R");
+        }
+    });
+    List.push({
+        category: 4,
+        chapter: "Теория",
+        opened: false,
+        text: [ 
+            'Объектно-ориентированное программирование',"https://ru.wikipedia.org/wiki/%D0%9E%D0%B1%D1%8A%D0%B5%D0%BA%D1%82%D0%BD%D0%BE-%D0%BE%D1%80%D0%B8%D0%B5%D0%BD%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%BD%D0%BE%D0%B5_%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5",
+            'Объектно-событийная модель работы программы. Визуальная среда разработки программ ',"https://eior.by/catalog_lecture/11-klass/informatika/1.php",
+            'Проектирование интерфейса оконного приложения с использованием элементов управления ',"https://eior.by/catalog_lecture/11-klass/informatika/2.php",
+            'Элементы управления для работы с графикой  ',"https://eior.by/catalog_lecture/11-klass/informatika/3.php",
+            'Создание приложений  ',"https://eior.by/catalog_lecture/11-klass/informatika/4.php"
+        ],
+        draw(){
+            //AHAHAHAHAHHAHA
+            this.text.forEach((e,i,a)=>{
+                i%2==0?Utils.drawButtonHREF(e,a[i+1]):0;
+            }) 
+        }
+    });
+    List.push({
+        category: 4,
+        chapter: "Тесты",
+        opened: false,
+        text: [ 
+            'Объектно-ориентированное программирование ',"https://docs.google.com/forms/d/e/1FAIpQLSf7BU34dbUCs3dCx3KIq-fSoB7OjbBT-MAHK9iussuC33O2hg/viewform?hr_submission=ChkIudusuooBEhAIjYSjwakMEgcI05G8raQLEAE",
+            'Проектирование интерфейса оконного приложения с использованием элементов управления',"https://docs.google.com/forms/d/e/1FAIpQLSeBJ57VLAcZn58Y15Gl8xuu5wuwD0n9nrAtqEP2AYK-sfGPJQ/viewform?hr_submission=ChkIudusuooBEhAI97y1w6kMEgcI05G8raQLEAE"
+        ],
+        draw(){
+            //И СНОВА МОЯ ГЕНИАЛЬНОСТЬ!!!1eleven
+            this.text.forEach((e,i,a)=>{
+                i%2==0?Utils.drawButtonHREF(e,a[i+1]):0;
+            })
+        }
+    });
+
+
     function LoadArrayBuffer(url) {
         return __awaiter(this, void 0, void 0, function* () {
             const response = yield fetch(url);
@@ -103,24 +933,6 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
             return ImGui.GetIO().Fonts.AddFontFromMemoryTTF(yield LoadArrayBuffer(url), size_pixels, font_cfg, glyph_ranges);
         });
     }
-    function HelpMarker(desc) {
-        ImGui.TextDisabled("(?)");
-        if (ImGui.IsItemHovered()) {
-            ImGui.BeginTooltip();
-            ImGui.PushTextWrapPos(ImGui.GetFontSize() * 35.0);
-            ImGui.TextUnformatted(desc);
-            ImGui.PopTextWrapPos();
-            ImGui.EndTooltip();
-        }
-    }
-    function UNIQUE(key) { return key; }
-    function STATIC(key, init) {
-        let value = _static_map.get(key);
-        if (value === undefined) {
-            _static_map.set(key, value = new Static(init));
-        }
-        return value;
-    }
 
     function _init() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -132,39 +944,16 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
             ImGui.CHECKVERSION();
             ImGui.CreateContext();
             const io = ImGui.GetIO();
-            //io.ConfigFlags |= ImGui.ConfigFlags.NavEnableKeyboard;     // Enable Keyboard Controls
-            //io.ConfigFlags |= ImGui.ConfigFlags.NavEnableGamepad;      // Enable Gamepad Controls
-            // Setup Dear ImGui style
             ImGui.StyleColorsDark();
-            //ImGui.StyleColorsClassic();
-            // Load Fonts
-            // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
-            // - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the font among multiple.
-            // - If the file cannot be loaded, the function will return NULL. Please handle those errors in your application (e.g. use an assertion, or display an error and quit).
-            // - The fonts will be rasterized at a given size (w/ oversampling) and stored into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which ImGui_ImplXXXX_NewFrame below will call.
-            // - Read 'docs/FONTS.md' for more instructions and details.
-            // - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
             io.Fonts.AddFontDefault();
             font = yield AddFontFromFileTTF("../imgui/misc/fonts/Roboto-Medium.ttf", 16);
             font = yield AddFontFromFileTTF("../imgui/misc/fonts/Roboto-Medium.ttf", 18);
             font = yield AddFontFromFileTTF("../imgui/misc/fonts/Roboto-Medium.ttf", 20);
             font = yield AddFontFromFileTTF("../imgui/misc/fonts/Roboto-Medium.ttf", 22);
-            font = yield AddFontFromFileTTF("../imgui/misc/fonts/Roboto-Medium.ttf", 24); //npm run start-example-html
+            font = yield AddFontFromFileTTF("../imgui/misc/fonts/Roboto-Medium.ttf", 24);
             font = yield AddFontFromFileTTF("../imgui/misc/fonts/Roboto-Medium.ttf", 36, null, ImGui.GetIO().Fonts.GetGlyphRangesCyrillic());
             io.FontDefault = io.Fonts.Fonts[2];
-
-            //font.FontConfig
-            
-            
-            // font = await AddFontFromFileTTF("../imgui/misc/fonts/Cousine-Regular.ttf", 15.0);
-            // font = await AddFontFromFileTTF("../imgui/misc/fonts/DroidSans.ttf", 16.0);
-            // font = await AddFontFromFileTTF("../imgui/misc/fonts/ProggyTiny.ttf", 10.0);
-            // font = await AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0, null, io.Fonts.GetGlyphRangesJapanese());
-            // font = await AddFontFromFileTTF("https://raw.githubusercontent.com/googlei18n/noto-cjk/master/NotoSansJP-Regular.otf", 18.0, null, io.Fonts.GetGlyphRangesJapanese());
             ImGui.ASSERT(font !== null);
-            // Setup Platform/Renderer backends
-            // ImGui_ImplSDL2_InitForOpenGL(window, gl_context);
-            // ImGui_ImplOpenGL3_Init(glsl_version);
             if (typeof (window) !== "undefined") {
                 const output = document.getElementById("output") || document.body;
                 const canvas = document.createElement("canvas");
@@ -184,48 +973,10 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
                 ImGui_Impl.Init(null);
             }
 
-            createIMG("https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%92%D0%B8%D0%B4%D1%8B%20%D0%BC%D0%BE%D0%B4%D0%B5%D0%BB%D0%B5%D0%B9.PNG",0,[1268,510]); // виды моделей
-            createIMG("https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%98%D0%BD%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%86%D0%B8%D0%BE%D0%BD%D0%BD%D1%8B%D0%B5%20%D0%BC%D0%BE%D0%B4%D0%B5%D0%BB%D0%B8.PNG",0,[1329,628]);//виды инф моделей
-            createIMG("https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%A6%D0%B5%D0%BB%D0%B8_%D0%BA%D0%BE%D0%BC%D0%BF%D1%8C%D1%8E%D1%82%D0%B5%D1%80%D0%BD%D0%BE%D0%B3%D0%BE_%D0%BC%D0%BE%D0%B4%D0%B5%D0%BB%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F.PNG",0,[1032,533]);//цели
-            createIMG("https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%AD%D0%BB%D0%B5%D0%BC%D0%B5%D0%BD%D1%82_%D0%BF%D0%BE%D1%81%D1%82%D1%80%D0%BE%D0%B5%D0%BD%D0%B8%D1%8F_%D0%B4%D0%B8%D0%BD%D0%B0%D0%BC%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D1%85_%D0%BC%D0%BE%D0%B4%D0%B5%D0%BB%D0%B5%D0%B9_%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC.PNG",0,[983,536]);//элемент построения
-            createIMG("https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%9C%D0%B5%D1%82%D0%BE%D0%B4%20%D0%9C%D0%BE%D0%BD%D1%82%D0%B5-%D0%9A%D0%B0%D1%80%D0%BB%D0%BE.PNG",0,[1172,531]);//метод монте карло
-            createIMG("https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/Моделирование популяции.PNG",0,[1637,819]);//популяции
-            createIMG("https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%BF%D1%80%D0%B8%D0%BC%D0%B5%D1%80.jpg",0,[1196,660]);//пример
-            createIMG("https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%9B%D0%B5%D0%B3%D0%B5%D0%BD%D0%B4%D0%B0.jpg",0,[1200,720]);//легенда
-            createIMG("https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%92%D1%8B%D0%B1%D0%BE%D1%80%20%D0%B8%D1%81%D1%82%D0%BE%D1%87%D0%BD%D0%B8%D0%BA%D0%B0%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85.jpg",0,[1200,623]);//выбор ист данных
-            createIMG("https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%98%D0%B7%D0%BC%D0%B5%D0%BD%D0%B5%D0%BD%D0%B8%D0%B5%20%D1%80%D1%8F%D0%B4%D0%B0.jpg",0,[1200,696]);//изменение ряда
-            createIMG("https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%BA%D0%BE%D0%BC%D0%BF%D1%8C%D1%8E%D1%82%D0%B5%D1%80%D0%BD%D0%BE%D0%B5%20%D0%BC%D0%BE%D0%B4%D0%B5%D0%BB%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5.png",0,[571,425]);//компмод
+            //setup img
+            Utils.setup();
 
-            createIMG("https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%A0%D0%B0%D0%B7%D0%BD%D0%BE%D0%BE%D0%B1%D1%80%D0%B0%D0%B7%D0%B8%D0%B5%20%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC.PNG",1,[1600,641]);//разнообразие систем
-            createIMG("https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%A2%D0%B0%20%D1%81%D0%B0%D0%BC%D0%B0%D1%8F%20%D1%82%D0%B0%D0%B1%D0%BB%D0%B8%D1%86%D0%B0%202.png",1,[1765,815]);//та самая таблица 2 XD
-            createIMG("https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%A2%D0%B0%20%D1%81%D0%B0%D0%BC%D0%B0%D1%8F%20%D1%82%D0%B0%D0%B1%D0%BB%D0%B8%D1%86%D0%B0%203.png",1,[1783,799]);//та самая таблица 3 XD
-            createIMG("https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%94%D0%BE%D1%81%D1%82%D0%B8%D0%B6%D0%B5%D0%BD%D0%B8%D1%8F%20%D0%B8%D0%BD%D1%84%20%D1%82%D0%B5%D1%85%D0%BD.PNG",1,[1396,540]);//достижения
-            createIMG("https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%A7%D0%B5%D1%80%D1%82%D1%8B%20%D0%BE%D0%B1%D1%89%D0%B5%D1%81%D1%82%D0%B2%D0%B0%20%D0%B7%D0%BD%D0%B0%D0%BD%D0%B8%D0%B9.PNG",1,[1359,345]);//черты
-            createIMG("https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%A1%D0%B0%D0%BC%D1%8B%D0%B5%20%D0%B2%D0%BE%D1%81%D1%82%D1%80%D0%B5%D0%B1%D0%BE%D0%B2%D0%B0%D0%BD%D0%BD%D1%8B%D0%B5%20%D0%BF%D1%80%D0%BE%D1%84%D0%B5%D1%81%D1%81%D0%B8%D0%B8%20%D0%B1%D1%83%D0%B4%D1%83%D1%89%D0%B5%D0%B3%D0%BE.PNG",1,[926,528]);//работы
-            createIMG("https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%9D%D0%B5%D0%BF%D1%80%D0%B8%D0%B5%D0%BC%D0%BB%D0%B8%D0%BC%D1%8B%D0%B5%20%D0%B4%D0%B5%D0%B9%D1%81%D1%82%D0%B2%D0%B8%D1%8F.PNG",1,[917,434]);//этикет
-            createIMG("https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%91%D0%B0%D0%B7%D0%BE%D0%B2%D1%8B%D0%B5%20%D0%BF%D1%80%D0%B0%D0%B2%D0%B8%D0%BB%D0%B0%20%D1%81%D0%B5%D1%82%D0%B5%D0%B2%D0%BE%D0%B3%D0%BE%20%D1%8D%D1%82%D0%B8%D0%BA%D0%B5%D1%82%D0%B0.PNG",1,[1073,646]);//базовые прв эт
-            createIMG("https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%A4%D0%B0%D0%BA%D1%82%D0%BE%D1%80%D1%8B%20%D1%83%D1%8F%D0%B7%D0%B2%D0%B8%D0%BC%D0%BE%D1%81%D1%82%D0%B5%D0%B9.png",1,[835,385]);//факторы уязв
-            createIMG("https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%9C%D0%B5%D1%80%D1%8B%20%D0%BE%D0%B1%D0%B5%D1%81%D0%BF%D0%B5%D1%87%D0%B5%D0%BD%D0%B8%D1%8F%20%D0%BA%D0%B8%D0%B1%D0%B5%D1%80%D1%83%D1%81%D1%82%D0%BE%D0%B9%D1%87%D0%B8%D0%B2%D0%BE%D1%81%D1%82%D0%B8.PNG",1,[1017,672]);//меры
-            createIMG("https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%A1%D0%BF%D0%B5%D1%86%D0%B8%D0%B0%D0%BB%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D0%B8%20%D0%BF%D0%BE%20%D0%B8%D0%BD%D1%84%D0%BE%D1%80%D0%BC%20%D0%B1%D0%B5%D0%B7.PNG",1,[1330,630]);//меры
-            createIMG("https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%92%D0%B8%D0%B4%D1%8B%20%D0%BA%D0%B8%D0%B1%D0%B5%D1%80%D0%B0%D1%82%D0%B0%D0%BA.PNG",1,[1636,509]);//виды кбат
 
-            createIMG("https://raw.githubusercontent.com/HOLLYCARROT/site/e506922fcb280aa9ccbdf97d9d5237861e55e640/pages/styles/img/wordcloud.svg",2,[800,800]);
-            createIMG("https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%A1%D0%BD%D0%B8%D0%BC%D0%BE%D0%BA.PNG",2,[1219,738]); //снимок
-            createIMG("https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%93%D1%80%D0%B0%D1%84%D0%B8%D0%BA%D0%B0.jpg",2,[1180,664]); //графика
-            createIMG("https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%97%D0%B2%D1%83%D0%BA.jpg",2,[934,787]); //звук
-            createIMG("https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%92%D0%B8%D0%B4%D0%B5%D0%BE%20%D0%BD%D0%B0%20%D0%B2%D0%B5%D0%B1-%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B8%D1%86%D0%B0%D1%85.PNG",2,[1330,784]); //видео
-
-            createIMG("https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%A1%D0%BE%D0%B2%D1%80%D0%B5%D0%BC%D0%B5%D0%BD%D0%BD%D0%BE%D0%B5%20%D0%9E%D0%9E%D0%9F.PNG",3,[1015,473]); //совр ооп
-            createIMG("https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%9E%D0%9E%D0%9F%20%D0%92%20PascalABC.PNG",3,[1324,480]); //в паск
-            createIMG("https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%9A%D0%BD%D0%BE%D0%BF%D0%BA%D0%B0_%D0%BD%D0%B0_%D1%84%D0%BE%D1%80%D0%BC%D0%B5_%D0%9F%D0%BE%D0%B4%D1%87%D0%B5%D1%80%D0%BA%D0%BD%D1%83%D1%82%D1%8B%D0%B9_%D0%BE%D0%B1%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D1%87%D0%B8%D0%BA_Click.PNG",3,[1497,803]); //кнопка на форм
-            createIMG("https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%9A%D0%BD%D0%BE%D0%BF%D0%BA%D0%B0.%20%D0%98%D0%B7%D0%BC%D0%B5%D0%BD%D0%B5%D0%BD%D0%B8%D0%B5%20%D1%86%D0%B2%D0%B5%D1%82%D0%B0%20%D1%84%D0%BE%D1%80%D0%BC%D1%8B.PNG",3,[754,92]); //изм цв ф
-            createIMG("https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%A1%D1%82%D0%B0%D0%BD%D0%B4%D0%B0%D1%80%D1%82%D0%BD%D1%8B%D0%B5%20%D1%8D%D0%BB%D0%B5%D0%BC%D0%B5%D0%BD%D1%82%D1%8B%20%D1%83%D0%BF%D1%80%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D1%8F%20(2).PNG",3,[1349,390]); //станд эл упр
-            createIMG("https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%A4%D0%BE%D1%80%D0%BC%D0%B0.%20PictureBox.PNG",3,[1496,631]); //форма
-            createIMG("https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%9A%D0%BE%D0%BC%D0%BF%D0%BE%D0%BD%D0%B5%D0%BD%D1%82%D1%8B%20%D0%BC%D0%B5%D0%BD%D1%8E%20(1).jpg",3,[1112,592]); //комп меню
-            createIMG("https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%94%D0%B8%D0%B0%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D1%8B.PNG",3,[999,828]); //диаграммы
-            createIMG("https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%93%D1%80%D0%B0%D1%84%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D0%B9%20%D1%80%D0%B5%D0%B4%D0%B0%D0%BA%D1%82%D0%BE%D1%80.PNG",3,[1002,721]); //граф р
-            createIMG("https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/%D0%93%D1%80%D0%B0%D1%84%D0%B8%D0%BA%20%D1%84%D1%83%D0%BD%D0%BA%D1%86%D0%B8%D0%B8.PNG",3,[776,656]); //график
-            
             ImGui.PushStyleColor(ImGui.Col.ScrollbarBg, new ImGui.Vec4(0.861,0.861,0.861,0.530));
             ImGui.PushStyleColor(ImGui.Col.ScrollbarGrab, new ImGui.Vec4(0.524,0.955,0.961,1));
             ImGui.PushStyleColor(ImGui.Col.ScrollbarGrabHovered, new ImGui.Vec4(0.736,0.983,1,1));
@@ -324,34 +1075,8 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
     var dxx = 0;
     var dyy = 0;
     var da = 0;
-    var DrawIMG = (s,size) => {
-        let ar = (size / s.size[0]) + dxx;
-        let uv_min = new ImGui.Vec2(0.0, 0.0);
-        let uv_max = new ImGui.Vec2(1 + da,1 + da);
-        let tint_col = new ImGui.Vec4(1.0, 1.0, 1.0, 1.0);
-        let border_col = new ImGui.Vec4(1.0, 1.0, 1.0, 0.0);
-        ImGui.Image(s.texture, new ImGui.Vec2(size - 16 + f, s.size[1] * (ar) + dyy), uv_min, uv_max, tint_col, border_col);       
-    }
-    var DrawButtonHREF = (text,href) => {
-        ImGui.GetStyle().ItemSpacing.y *= 2;
-        ImGui.PushStyleColor(ImGui.Col.Button, /*(ImGui.Vec4)*/ ImGui.Color.HSV(187/365, 0.635, 1));
-        ImGui.PushStyleColor(ImGui.Col.ButtonHovered, /*(ImGui.Vec4)*/ ImGui.Color.HSV(187/365, 0.635, 0.9));
-        ImGui.PushStyleColor(ImGui.Col.ButtonActive, /*(ImGui.Vec4)*/ ImGui.Color.HSV(187/365, 0.635, 1));
-        ImGui.PushStyleColor(ImGui.Col.Text, /*(ImGui.Vec4)*/ ImGui.Color.HSV(187/365, 0.635, 0.7));  
-        ImGui.GetIO().FontGlobalScale = 0.5; 
-        ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
-        //if(ImGui.Button(text,new ImGui.Vec2(ImGui.GetWindowSize().x,25))) window.open(href);
-        ImGui.Button(text,new ImGui.Vec2(ImGui.GetWindowSize().x,25));
-        if(ImGui.IsItemHovered() && ImGui.IsMouseReleased(0)) {
-            window.open(href);
-        }
-        ImGui.GetIO().FontGlobalScale = 1;
-        ImGui.PopFont();
-        ImGui.PopStyleColor(4);
-        ImGui.GetStyle().ItemSpacing.y /= 2;
-    }
 
- 
+
     // Main loop
     function _loop(time) {
         ImGui_Impl.NewFrame(time);
@@ -386,29 +1111,35 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
                     const col_b = ImGui.GetColorU32(ImGui.COL32(255, 255, 255, 255));
                     draw_list.AddRectFilledMultiColor(p0, p1, col_a, col_a, col_b, col_b);
                     let aspect_ratio = new ImGui.Vec2(1/((ImGui.GetWindowSize().x) / 850), 1/((ImGui.GetWindowSize().y-99) / 866));
-                    if(menustate == 0){
-                        const uv_min = new ImGui.Vec2(0.0, 0.0);
-                        const uv_max = new ImGui.Vec2(aspect_ratio.y, aspect_ratio.y);//ImGui.Vec2(aspect_ratio.x, aspect_ratio.y);
-                        const tint_col = new ImGui.Vec4(1.0, 1.0, 1.0, 1.0);
-                        const border_col = new ImGui.Vec4(1.0, 1.0, 1.0, 0.0); // 50% opaque white
-                        ImGui.SetCursorPos(new ImGui.Vec2(((ImGui.GetWindowSize().x - (850/aspect_ratio.y))*0.5+1), 100));
-                        ImGui.Image(image_texture, new ImGui.Vec2(850, 866), uv_min, uv_max, tint_col, border_col);
-                        //DrawIMG(image_texture, ImGui.GetWindowSize().x);
-
-                        ImGui.GetIO().FontGlobalScale = 1;
+                    let topMostRender = "КурсОР";
+                    if(menustate == 1) topMostRender = "Компьютерное моделирование";
+                    if(menustate == 2) topMostRender = "Информационные технологии в обществе";
+                    if(menustate == 3) topMostRender = "Основы веб-конструирования";
+                    if(menustate == 4) topMostRender = "Введение в ООП";
+                    if(menustate == 5) topMostRender = "Поиск";
+                    if(menustate == 6) topMostRender = "topMostRender";
+                    ImGui.GetIO().FontGlobalScale = 1;
                         ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
-                        ImGui.SetCursorPos(new ImGui.Vec2((ImGui.GetWindowSize().x - ImGui.CalcTextSize("КурсОР").x)*0.5+1, 26)); 
-                        ImGui.TextColored(new ImGui.Vec4(0.0, 0.0, 0.0, 1.0),"КурсОР");
-                        ImGui.SetCursorPos(new ImGui.Vec2((ImGui.GetWindowSize().x - ImGui.CalcTextSize("КурсОР").x)*0.5, 25)); 
-                        ImGui.Text("КурсОР");
+                        ImGui.SetCursorPos(new ImGui.Vec2((ImGui.GetWindowSize().x - ImGui.CalcTextSize(topMostRender).x)*0.5+1, 26)); 
+                        ImGui.TextColored(new ImGui.Vec4(0.0, 0.0, 0.0, 1.0),topMostRender);
+                        ImGui.SetCursorPos(new ImGui.Vec2((ImGui.GetWindowSize().x - ImGui.CalcTextSize(topMostRender).x)*0.5, 25)); 
+                        ImGui.Text(topMostRender);
                         if (ImGui.IsItemHovered()) {
                             style.FrameRounding = 0;
                             ImGui.PushStyleColor(ImGui.Col.Border, new ImGui.Vec4(19/255,148/255,197/255,255));
                             ImGui.PushStyleColor(ImGui.Col.PopupBg, ImGui.GetColorU32(ImGui.COL32(clear_color.x* 0xff, clear_color.y* 0xff, clear_color.z* 0xff, 255)));
                             ImGui.PushStyleColor(ImGui.Col.Text, new ImGui.Vec4(19/255,148/255,197/255,255));
-                            ImGui.SetTooltip("Курс на Образование и Развитие");
+                            ImGui.SetTooltip(menustate == 0 ? "Курс на Образование и Развитие" : topMostRender);
                             ImGui.PopStyleColor(3); //2
                         }
+                    if(menustate == 0){
+                        const uv_min = new ImGui.Vec2(0.0, 0.0);
+                        const uv_max = new ImGui.Vec2(aspect_ratio.y, aspect_ratio.y);
+                        const tint_col = new ImGui.Vec4(1.0, 1.0, 1.0, 1.0);
+                        const border_col = new ImGui.Vec4(1.0, 1.0, 1.0, 0.0);
+                        ImGui.SetCursorPos(new ImGui.Vec2(((ImGui.GetWindowSize().x - (850/aspect_ratio.y))*0.5+1), 100));
+                        ImGui.Image(image_texture, new ImGui.Vec2(850, 866), uv_min, uv_max, tint_col, border_col);
+                        //DrawIMG(image_texture, ImGui.GetWindowSize().x);
                         
                         var changecolors = () => {
                             ImGui.PushStyleColor(ImGui.Col.Button, new ImGui.Vec4(0,0,0,0));
@@ -474,759 +1205,31 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
                             ImGui.SetTooltip("Авторы");
                             ImGui.PopStyleColor(3); //2
                         }
-
-
-
                         style.FrameRounding = 0;
                         //ImGui.PopStyleColor(5);
                         ImGui.PopFont();
-                   }
-                   if(menustate == 1) {
-                    ImGui.GetIO().FontGlobalScale = 1;
-                    ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
-                    ImGui.SetCursorPos(new ImGui.Vec2((ImGui.GetWindowSize().x - ImGui.CalcTextSize("Компьютерное моделирование").x)*0.5+1, 26)); //ImGui.TextColored(new ImGui.Vec4(1.0, 0.0, 1.0, 1.0), "Pink");
-                    ImGui.TextColored(new ImGui.Vec4(0.0, 0.0, 0.0, 1.0),"Компьютерное моделирование");
-                    ImGui.SetCursorPos(new ImGui.Vec2((ImGui.GetWindowSize().x - ImGui.CalcTextSize("Компьютерное моделирование").x)*0.5, 25)); //ImGui.TextColored(new ImGui.Vec4(1.0, 0.0, 1.0, 1.0), "Pink");
-                    if(ImGui.Text("Компьютерное моделирование")) menustate = 0;
-
-
-                    var s1 = ImGui.GetStyle();
-                    draw_list.AddRectFilled(new ImGui.Vec2(ImGui.GetWindowSize().x/5 - 30, 50 + ImGui.CalcTextSize("AWG").y), new ImGui.Vec2(ImGui.GetWindowSize().x*4 / 5 + 30, ImGui.GetWindowSize().y), ImGui.COL32(255, 255, 255, 255));
-                    ImGui.SetCursorPos(new ImGui.Vec2(ImGui.GetWindowSize().x/5, 60 + ImGui.CalcTextSize("AWG").y));
-                    {
-                        let window_flags = ImGui.WindowFlags.None;
-                        window_flags |= ImGui.WindowFlags.AlwaysVerticalScrollbar;
-                        ImGui.PushStyleColor(ImGui.Col.ChildBg, ImGui.COL32(255, 255, 255, 255));
-                        ImGui.PushStyleColor(ImGui.Col.Text, ImGui.COL32(0, 0, 0, 255));
-                
-                        ImGui.BeginChild("Child", new ImGui.Vec2(ImGui.GetWindowSize().x * 4/5 - ImGui.GetWindowSize().x/5, ImGui.GetWindowSize().y - 50 - ImGui.CalcTextSize("AWG").y), false, window_flags);
-                        ImGui.GetIO().FontGlobalScale = 0.3;
-                        DrawGradientButton("Модели и формы их представления", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            cmodels[0] = !cmodels[0];
-                        });
-                        if(cmodels[0]){ 
-                            ImGui.GetIO().FontGlobalScale = 0.5;
-                            ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
-                            ImGui.TextWrapped(" Модель - объект или процесс, который для различных целей рассматривается вместо другого объекта или процесса. На данный момент широко распространены компьютерные модели, представляющие собой информационную модель в виде файла на компьютерном носителе и ее изображение на экране компьютера.\n Создание и использование моделей для решения научных и практических задач называется моделированием. ");
-                            ImGui.GetIO().FontGlobalScale = 1;
-                            DrawIMG(images.mod[0], ImGui.GetWindowSize().x);
-                            DrawIMG(images.mod[1], ImGui.GetWindowSize().x);
+                    }else{
+                        draw_list.AddRectFilled(new ImGui.Vec2(ImGui.GetWindowSize().x/5 - 30, 50 + ImGui.CalcTextSize("AWG").y), new ImGui.Vec2(ImGui.GetWindowSize().x*4 / 5 + 30, ImGui.GetWindowSize().y), ImGui.COL32(255, 255, 255, 255));
+                        ImGui.SetCursorPos(new ImGui.Vec2(ImGui.GetWindowSize().x/5, 60 + ImGui.CalcTextSize("AWG").y));
+                        {
+                            let window_flags = ImGui.WindowFlags.None;
+                            window_flags |= ImGui.WindowFlags.AlwaysVerticalScrollbar;
+                            ImGui.PushStyleColor(ImGui.Col.Text, ImGui.COL32(0, 0, 0, 255));
+                            ImGui.BeginChild("Child", new ImGui.Vec2(ImGui.GetWindowSize().x * 4/5 - ImGui.GetWindowSize().x/5, ImGui.GetWindowSize().y - 50 - ImGui.CalcTextSize("AWG").y), false, window_flags);
+                            List.forEach((e,i,a)=>{
+                                if(e.category == menustate){
+                                    Utils.drawGradientButton(e);
+                                    if(e.opened) e.draw();
+                                }
+                            });
+                            DrawGradientButton("Назад", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
+                                menustate = 0;
+                            });
+                            ImGui.EndChild();
+                            ImGui.PopStyleColor();
                         }
-
-
-                        DrawGradientButton("Цели компьютерного моделирования", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            cmodels[1] = !cmodels[1];
-                        });
-                        if(cmodels[1]){ 
-                            DrawIMG(images.mod[2], ImGui.GetWindowSize().x);
-                            DrawIMG(images.mod[10], ImGui.GetWindowSize().x);
-                        }
-                        DrawGradientButton("Современное моделирование", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            cmodels[2] = !cmodels[2];
-                        });
-                        if(cmodels[2]){ 
-                            ImGui.GetIO().FontGlobalScale = 0.5;
-                            ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
-                            ImGui.TextWrapped(" Моделирование в научных исследованиях стало применяться еще в глубокой древности и постепенно захватывало все новые области научных знаний: техническое конструирование, строительство и архитектуру, астрономию, физику, химию, биологию и, наконец, общественные науки. Большие успехи и признание практически во всех отраслях современной науки принес методу моделирования ХХ в.\n\n Актуальность компьютерного моделирования состоит в том, что методами компьютерного моделирования пользуются специалисты практически всех отраслей и областей науки и техники - от истории до космонавтики, поскольку с их помощью можно прогнозировать и даже имитировать явления, события или проектируемые предметы в заранее заданных параметрах.\n\n В современном моделировании реализуется системных подход, состоящий в том, что моделируемый объект представляется в модели как система, т.е. совокупности объектов. Элементы системы могут быть естественными (существующие и просто выделяемые) и искусственными объектами (несуществующие условные единицы).\n Математическая модель системы называется динамической, если она учитывает изменение времени.\n\n Под компьютерным моделированием будем понимать процесс построения, изучения и применения моделей, объектов, изучаемых в технике, медицине, искусстве и других областях деятельности людей, с помощью компьютеров и компьютерных устройств.\n Стоит также отметить, что на данный момент широкое распространение получает трехмерное моделирование. Заключается оно в том, что необходимый объект представляется в виде трехмерной модели. Эта технология получила широкое распространение в современной архитектуре и 3D-печати, а также в киноиндустрии. Например, архитектры создают компьютерные модели городов или отдельных райнов, монтажеры создают невероятные спецэффекты для фильмов, 3D-принтер на основе загруженной в него модели создает физический предмет. ");
-                            ImGui.GetIO().FontGlobalScale = 1;
-
-                            
-                        };
-                        DrawGradientButton("Элементы построения динамических моделей систем", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            cmodels[3] = !cmodels[3];
-                        });
-                        if(cmodels[3]){ 
-                            DrawIMG(images.mod[3], ImGui.GetWindowSize().x);
-                        }
-
-                        DrawGradientButton("Задачи", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            cmodels[4] = !cmodels[4];
-                        });
-                        if(cmodels[4]){ 
-                            ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
-                            DrawButtonHREF("Биологическая задача","https://docs.google.com/presentation/d/1xZ-Kjm-IQ8J3Nc11SkRGUcynFERs9Z4W");
-                            DrawButtonHREF('Игра в рулетку',"https://docs.google.com/presentation/d/1QE4D1X0t19VKy0leNn1Kh66YDtoI5PxV");
-                            DrawButtonHREF("Метод Монте-Карло","https://docs.google.com/presentation/d/1lR_mByzcx767g535pgJj-cTTjQhp7KIy");
-                            DrawButtonHREF("Выбор железнодорожной станции","https://docs.google.com/presentation/d/1xEO0_Q-2TImHJcqm01UYqeCMM7cX0Bmp");
-                            DrawButtonHREF("Биоритмы человека","https://docs.google.com/presentation/d/1e3LIb2nT9BwySvrWJ9_ZfL3DYuYhHwK3");
-                            DrawButtonHREF("Финансовая задача","https://docs.google.com/presentation/d/1IfwhhvGYRwGBIwpowtcrOeRWmI69y4L7");
-                            DrawButtonHREF("Шифрование","https://docs.google.com/presentation/d/1z2ZYDpVzQn0jZfqZznnnC-UnNt07KjP0");
-                            DrawButtonHREF("Экологическая задач","https://docs.google.com/presentation/d/16fR8neMUwvilAV9FYPehzKhXXHllRYfu");
-                            DrawButtonHREF("Температурные режимы","https://docs.google.com/presentation/d/1-8gMTk-qHQUpjJL8CeKAVO3Dz_jIEPJy");
-                            DrawButtonHREF("Транспортная задача","https://eior.by/catalog_lecture/11-klass/informatika/19.php");
-                            DrawButtonHREF("Движение тела в воздухе","https://eior.by/catalog_lecture/11-klass/informatika/20.php");
-                            DrawButtonHREF("Деление клеток","https://drive.google.com/file/d/1UKlpA24C0u4HetBHAO2nSd7dn-KkEvke/view");
-                            DrawButtonHREF("График тренировок","https://drive.google.com/file/d/1Rr-ogxz-cplCigKf00lUXfjYSWO-pf36/view");
-                            DrawButtonHREF("Вертикально броошенный мяч","https://drive.google.com/file/d/1BXp8Iz0jqMFsmr8T1NaPEvqhvtogY_d1/view");
-                            DrawButtonHREF("Исследование массива температур","https://drive.google.com/file/d/1cMfC1ris91VPgUSDrxqzX-iqqIc1FInX/view");
-                            DrawButtonHREF("Моделирование полета тела","https://drive.google.com/file/d/10j5IrGNQ9CZVboju45TpHQ5yXuUUZ4qo/view");
-                            DrawButtonHREF("Обои и комната","https://drive.google.com/file/d/1BhWjgwZjaBbqR4qeXD9dY0bm2QpJzHVa/view");
-                            DrawButtonHREF("Совместимость по биоритмам","https://drive.google.com/file/d/1dj7CMbou_j0Q4pWreXa8zjPUXvaswa-D/view");
-                            DrawButtonHREF("Задача роста и убывания","https://drive.google.com/file/d/1Q_zP5g9WNrXw32K409s4Iiim-N6DZotd/view");
-                            DrawButtonHREF("Динамика численности популяций","https://eior.by/catalog_lecture/11-klass/informatika/14.php");
-                            ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
-                        }
-
-                        DrawGradientButton("Teория", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            cmodels[6] = !cmodels[6];
-                        });
-                        if(cmodels[6]){ 
-                            ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
-                            DrawButtonHREF("Компьютерное моделирование","https://ru.wikipedia.org/wiki/%D0%9A%D0%BE%D0%BC%D0%BF%D1%8C%D1%8E%D1%82%D0%B5%D1%80%D0%BD%D0%BE%D0%B5_%D0%BC%D0%BE%D0%B4%D0%B5%D0%BB%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5");
-                            DrawButtonHREF("Компьютерное информационные модели","https://eior.by/catalog_lecture/11-klass/informatika/10.php");
-                            DrawButtonHREF("Проектирование интерфейса оконного приложения с использованием элементов управления","https://eior.by/catalog_lecture/11-klass/informatika/2.php");
-                            DrawButtonHREF("Моделирование случайных событий. Метод Монте-Карло","https://eior.by/catalog_lecture/11-klass/informatika/11.php");
-                            DrawButtonHREF("Вычисление значения числа Pi методом Монте-Карло","https://eior.by/catalog_lecture/11-klass/informatika/12.php");
-                            DrawButtonHREF("Вычисление площади фигуры методом Монте-Карло","https://eior.by/catalog_lecture/11-klass/informatika/13.php");
-                            DrawButtonHREF("Модель «хищник-жертва»","https://eior.by/catalog_lecture/11-klass/informatika/15.php");
-                            DrawButtonHREF("Моделирование динамики численности популяций","https://bit.ly/3NVfMK4");
-                            DrawButtonHREF("Моделирование в задачах преследования","https://drive.google.com/file/d/1Epijn0_RtkHD3vR9J_YM6AO8xu2f_He3");
-                            DrawButtonHREF("3D-моделирование интерьеров. Модель строительной оболочки","https://eior.by/catalog_lecture/11-klass/informatika/16.php");
-                            DrawButtonHREF("Моделирование в экономических задачах","https://eior.by/catalog_lecture/11-klass/informatika/18.php");
-                            ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
-                        }
-                        DrawGradientButton("Тесты", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            cmodels[7] = !cmodels[7];
-                        });
-                        if(cmodels[7]){ 
-                            ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
-                            DrawButtonHREF("Компьютерные информационные модели","https://docs.google.com/forms/d/e/1FAIpQLSf0ffQ7AQ_E_exh3ujpR4RCegtc5wEdr9wM6a8vFGoOPP_Zgw/viewform");
-                            DrawButtonHREF("Проектирование интерфейса оконного приложения с использованием элементов управления","https://docs.google.com/forms/d/e/1FAIpQLSeBJ57VLAcZn58Y15Gl8xuu5wuwD0n9nrAtqEP2AYK-sfGPJQ/viewform");
-                            DrawButtonHREF("Моделирование случайных событий. Метод Монте-Карло","https://docs.google.com/forms/d/e/1FAIpQLSdLhAfy4umZ-D4CtJae8uDuN-EwcGrEWgFWDDPqoosjTOhz9A/viewform");
-                            DrawButtonHREF("Вычисление значения числа pi методом Монте-Карло","https://docs.google.com/forms/d/e/1FAIpQLSczVHhPz0FYuM5if1HYrs3qZFX_N-gWG-Gm36YPFoGa_b1_IA/viewform");
-                            DrawButtonHREF("Вычисление площади фигуры методом Монте-Карло","https://docs.google.com/forms/d/e/1FAIpQLSdtcaHJhO27LcuenfDtrG1iAfEzrpvI5GxJjNm2cu8eaR0wHw/viewform");
-                            DrawButtonHREF("Моделирование динамики численности популяций","https://docs.google.com/forms/d/e/1FAIpQLScKMCGDugu8TQcZGciILpkXYX450Jg3KdvRS26K1LaIhp3zGw/viewform");
-                            DrawButtonHREF("Модель строительной оболочки","https://docs.google.com/forms/d/e/1FAIpQLSc3ZieHDONwY5JDSv9e8Sbd6xxA3h7Ni_dAjBEe_CTsJplmbw/viewform");
-                            DrawButtonHREF("Модели предметного наполнения","https://docs.google.com/forms/d/e/1FAIpQLSfNk4mhKCnK2SC1L_oIO54P9b99AFMejkI7uT5_HoczFQbzPw/viewform");
-                            DrawButtonHREF("Моделирование в экономических задачах","https://docs.google.com/forms/d/e/1FAIpQLSdjYIgv8QdON7STIU2ydsJ9P4Xl1_IeeLCAFio5dd0SPPUXpQ/viewform");
-                            DrawButtonHREF("Транспортная задача","https://docs.google.com/forms/d/e/1FAIpQLSe6dIJ05epdQ23KHLAYe9dJa2LpnEDvDIx4t7rNniDCgB6ySw/viewform");
-                            DrawButtonHREF("Моделирование движения тела в воздухе","https://docs.google.com/forms/d/e/1FAIpQLSeLMqTMA5qbZoX4nojitCa2D3foThMt1v24whO2QolYmtGW1g/viewform");
-                            ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
-                        }
-                        DrawGradientButton("Назад", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            menustate = 0;
-                        });
-                        ImGui.EndChild();
-                        ImGui.PopStyleColor();
-                        //ImGui.PopStyleVar();
-                    }
-                   }
-
-                   if(menustate == 2) {
-                    ImGui.GetIO().FontGlobalScale = 1;
-                    ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
-                    ImGui.SetCursorPos(new ImGui.Vec2((ImGui.GetWindowSize().x - ImGui.CalcTextSize("Информационные технологии в обществе").x)*0.5+1, 26)); //ImGui.TextColored(new ImGui.Vec4(1.0, 0.0, 1.0, 1.0), "Pink");
-                    ImGui.TextColored(new ImGui.Vec4(0.0, 0.0, 0.0, 1.0),"Информационные технологии в обществе");
-                    ImGui.SetCursorPos(new ImGui.Vec2((ImGui.GetWindowSize().x - ImGui.CalcTextSize("Информационные технологии в обществе").x)*0.5, 25)); //ImGui.TextColored(new ImGui.Vec4(1.0, 0.0, 1.0, 1.0), "Pink");
-                    if(ImGui.Text("Информационные технологии в обществе")) menustate = 0;
-
-
-                    var s1 = ImGui.GetStyle();
-
-                    draw_list.AddRectFilled(new ImGui.Vec2(ImGui.GetWindowSize().x/5 - 30, 50 + ImGui.CalcTextSize("AWG").y), new ImGui.Vec2(ImGui.GetWindowSize().x*4 / 5 + 30, ImGui.GetWindowSize().y), ImGui.COL32(255, 255, 255, 255));
-                    ImGui.SetCursorPos(new ImGui.Vec2(ImGui.GetWindowSize().x/5, 60 + ImGui.CalcTextSize("AWG").y));
-                    {
-                        let window_flags = ImGui.WindowFlags.None;
-                        window_flags |= ImGui.WindowFlags.AlwaysVerticalScrollbar;
-                        ImGui.PushStyleColor(ImGui.Col.ChildBg, ImGui.COL32(255, 255, 255, 255));
-                        ImGui.PushStyleColor(ImGui.Col.Text, ImGui.COL32(0, 0, 0, 255));
-                        ImGui.BeginChild("Child", new ImGui.Vec2(ImGui.GetWindowSize().x * 4/5 - ImGui.GetWindowSize().x/5, ImGui.GetWindowSize().y - 50 - ImGui.CalcTextSize("AWG").y), false, window_flags);
-                        
-                        
-                        ImGui.GetIO().FontGlobalScale = 0.3;
-
-                        DrawGradientButton("Информационные системы, технологии", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            itinsoc[0] = !itinsoc[0];
-                        });
-                        if(itinsoc[0]){  
-ImGui.GetIO().FontGlobalScale = 0.5;
-ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
-ImGui.TextWrapped(` Реальные объекты и явления, наблюдаемые нами в мире, очень сложные, поэтому их принято рассматривать в виде системы. Система состоит из нескольких элементов, каждый выполняет свою функцию. Для лучшего понимания темы предлагаем рассмотреть следующую таблицу с примерами: `);
-DrawIMG(images.soc[0], ImGui.GetWindowSize().x);         
-ImGui.GetIO().FontGlobalScale = 1;
-};
-
-
-                        DrawGradientButton("Информационная система", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            itinsoc[1] = !itinsoc[1];
-                        });
-                        if(itinsoc[1]){
-ImGui.GetIO().FontGlobalScale = 0.5;
-ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
-ImGui.TextWrapped(` В современном обществе широко распространено такое явление, как информационная система. Информационная система - это система, элементами которой являются данные, технические средства, специалисты, а связи образуются благодаря потокам информационных процессов.
- Современные информационные системы являются автоматизированными, вот некоторые примеры: `);
-DrawIMG(images.soc[1], ImGui.GetWindowSize().x); 
-ImGui.GetIO().FontGlobalScale = 1;  
-                        };
-
-                        DrawGradientButton("Информационные технологии в обществе", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            itinsoc[2] = !itinsoc[2];
-                        });
-                        if(itinsoc[2]){
-ImGui.GetIO().FontGlobalScale = 0.5;
-ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
-ImGui.TextWrapped(` Информационная технология - совокупность способов, приемов и методов сбора, обработки и передачи данных. Такие технологии применяются во всех областях человеческой деятельности, а их инструментами являются аппаратное, программное и математическое обеспечение. Технологический процесс разбивают на этапы. Каждый этап состоит из операций и действий, приводящих к получению пользователем того, что он ожидает получить.
-Для того чтобы использовать информационные технологии грамотно, нам необходимо узнать их классификацию из специальной таблицы ниже: `);
-DrawIMG(images.soc[2], ImGui.GetWindowSize().x); 
-ImGui.GetIO().FontGlobalScale = 1;  
-                        };
-
-                        DrawGradientButton("Информатизация общества", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            itinsoc[3] = !itinsoc[3];
-                        });
-                        if(itinsoc[3]){
-ImGui.GetIO().FontGlobalScale = 0.5;
-ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
-ImGui.TextWrapped(` Основой информационного общества является широкое использование информационных технологий во всех сферах деятельности человека. Такое общество отличается от индустриального высоким развитием информатики.
-Переход от индустриального общества к информационному подразумевает информатизацию.
-Информатизация - организационный социально-экономический и научно-технический процесс создания оптимальных условий для удовлетворения информационных потребностей людей.
-Важным в информатизации является наличие информационной культуры - совокупности знаний и умений человека, представленной в виде правил его поведения в информационном обществе. `);
-ImGui.GetIO().FontGlobalScale = 1; 
-                        };
-
-                        DrawGradientButton("Виртуальная реальность", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            itinsoc[4] = !itinsoc[4];
-                        });
-                        if(itinsoc[4]){
-                            ImGui.GetIO().FontGlobalScale = 0.5;
-ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
-ImGui.TextWrapped(` Неотъемлемой частью современного мира становятся технологии виртуальной и дополненной реальности.
-Виртуальная реальность - созданный техническими средствами мир, передаваемый человеку через его ощущения. Для погружения в неё используйте шлемы, очки или комнаты виртуальной реальности
-Дополненная реальность - технологии, которые дополняют реальный мир, добавляя любые сенсорные данные. Чтобы испытать такое на себе, достаточно обзавестись очками или шлемом дополненной реальности, можно также использовать смартфон или планшет.
-Сфера применения таких технологий достаточно широка - им находят применение в медицине, образовании, инженерии и сфере развлечений.
-Новейшие достижения этих технологий указаны ниже: `);
-DrawIMG(images.soc[3], ImGui.GetWindowSize().x); 
-ImGui.GetIO().FontGlobalScale = 1; 
-                        };
-
-                        DrawGradientButton("Образование и профессиональная деятельность в информационном обществе", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            itinsoc[5] = !itinsoc[5];
-                        });
-                        if(itinsoc[5]){
-ImGui.GetIO().FontGlobalScale = 0.5;
-ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
-ImGui.TextWrapped(` В современном мире ключевое значение имеют знания. Для обозначения этого феномена используется термин «общество знаний». Его характерные черты указаны в таблице: `);
-DrawIMG(images.soc[4], ImGui.GetWindowSize().x); 
-ImGui.TextWrapped(` В «обществе знаний» инофрмационные технологии являются средством получения и усваивания новой информации.
-На основе владения информацией о самых различных процессах и явлениях можно эффективно и оптимально строить любую деятельность. При этом повышается не только качество потребления, но и качество производства: человек, использующий информационные технологии, имеет лучшие условия труда. Основным критерием развитости информационного общества можно считать количество населения, занятого в информационной сфере и использующего информационные и коммуникационные технологии в своей повседневной деятельности. В настоящее время достаточно много интернет-ресурсов предлагают обзоры профессий, которые будут актуальными в ближайшее время. Примеры таких должностей указаны ниже: `);
-DrawIMG(images.soc[5], ImGui.GetWindowSize().x); 
-ImGui.GetIO().FontGlobalScale = 1; 
-                        };
-
-                        DrawGradientButton("Сетевой этикет", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            itinsoc[6] = !itinsoc[6];
-                        });
-                        if(itinsoc[6]){
-                            ImGui.GetIO().FontGlobalScale = 0.5;
-ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
-ImGui.TextWrapped(` Сетевой этикет - это система правил, созданная людьми для общения друг с другом в сети Интернет. Этикет общения в Интернете рекомендуется соблюдать новичкам и опытным пользователям для комфорта. Однозначно сказать, что такое сетевой этикет невозможно, но в большинстве случаев это правила хорошего тона, общепринятые среди людей.
-Соблюдение правил хорошего тона повышает авторитет собеседника и привлекает внимание.
-Чтобы ответить на вопрос, как общаться в Интернете, следует узнать, что не рекомендуется делать. Сетевой этикет подразумевает отказ от следующих действий: `);
-DrawIMG(images.soc[6], ImGui.GetWindowSize().x); 
-ImGui.TextWrapped(` Вместо всего вышеперечисленного, лучше показать себя культурным и приличным человеком, придерживаясь базовых правил сетевого этикета: `);
-DrawIMG(images.soc[7], ImGui.GetWindowSize().x); 
-ImGui.GetIO().FontGlobalScale = 1; 
-                        };
-
-                        DrawGradientButton("Кибербезопасность", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            itinsoc[7] = !itinsoc[7];
-                        });
-                        if(itinsoc[7]){
-                            ImGui.GetIO().FontGlobalScale = 0.5;
-ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
-ImGui.TextWrapped(` В современном информационном обществе самым важным ресурсом являются данные. Их утечка или утеря могут создать много трудностей как рядовым пользователям, так и крупным компаниям. Именно поэтому так важно задумываться о безопасности и сохранности своих данных в сети.
-
- Кибербезопасность - это состояние защищенности информационной инфраструктуры и содержащейся в ней информации от внешних и внутренних угроз. `);
-ImGui.GetIO().FontGlobalScale = 1; 
-                        };
-
-                        DrawGradientButton("Уязвимости", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            itinsoc[8] = !itinsoc[8];
-                        });
-                        if(itinsoc[8]){
-                            ImGui.GetIO().FontGlobalScale = 0.5;
-ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
-ImGui.TextWrapped(` Уязвимость - свойство информационной инфраструктуры или её объектов, которое позволяет реализовать угрозу. Факторы уязвимостей приведены ниже:`);
-DrawIMG(images.soc[8], ImGui.GetWindowSize().x); 
-ImGui.TextWrapped(` Таким образом, происходит переход в состояние киберустойчивости - способности информационной инфраструктуры успешно и предотвращать реализацию угроз, и быстро восстанавливаться.
-Для обеспечения киберустойчивости необходимо принять следующие меры: `);
-DrawIMG(images.soc[9], ImGui.GetWindowSize().x); 
-ImGui.GetIO().FontGlobalScale = 1; 
-                        };
-
-                        DrawGradientButton("Профессии, связанные с кибербезопасностью", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            itinsoc[9] = !itinsoc[9];
-                        });
-                        if(itinsoc[9]){
-                            ImGui.GetIO().FontGlobalScale = 0.5;
-ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
-ImGui.TextWrapped(` Информационная безопасность - одно из самых перспективных направлений в сфере ИТ. Профессионалы в области кибербезопасности защищают компании от утечек данных и прочих угроз. Ниже представлены некоторые основные специализации: `);
-DrawIMG(images.soc[10], ImGui.GetWindowSize().x); 
-ImGui.GetIO().FontGlobalScale = 1; 
-                        };
-
-                        DrawGradientButton("Кибератаки", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            itinsoc[10] = !itinsoc[10];
-                        });
-                        if(itinsoc[10]){
-                            ImGui.GetIO().FontGlobalScale = 0.5;
-ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
-ImGui.TextWrapped(` Кибератака - умышленное воздействие на информационную структуру с помощью программ. `);
-DrawIMG(images.soc[11], ImGui.GetWindowSize().x); 
-ImGui.GetIO().FontGlobalScale = 1; 
-                        };
-
-                        DrawGradientButton("Киберустойчивость", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            itinsoc[11] = !itinsoc[11];
-                        });
-                        if(itinsoc[11]){
-                            ImGui.GetIO().FontGlobalScale = 0.5;
-ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
-ImGui.TextWrapped(` Кибербезопасность требует грамотного обеспечения: наличия системы мер защиты информационной инфраструктуры и противодействия угрозам информационной безопасности.
-Таким образом происходит переход в состояние киберустойчивости - способности информационной инфраструктуры успешно предотвращать реализацию угроз или быстро восстанавливаться после их реализации. `);
-ImGui.GetIO().FontGlobalScale = 1; 
-                        };
-
-                        /* DrawGradientButton("Итог", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            itinsoc[12] = !itinsoc[12];
-                        });
-                        if(itinsoc[12]){
-                            ImGui.GetIO().FontGlobalScale = 0.5;
-ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
-ImGui.TextWrapped(` Подводя итог, стоит сказать, что никакие программы и устройства не защитят вас, если злоумышленник завладеет вашим доверием, поэтому лучшая защита от кибератак - ваши осторожность и бдительность. `);
-ImGui.GetIO().FontGlobalScale = 1; 
-                        }; */
-
-                        DrawGradientButton("Теория", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            itinsoc[13] = !itinsoc[13];
-                        });
-                        if(itinsoc[13]){
-                            ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
-                            DrawButtonHREF("Информационные системы и технологии","https://drive.google.com/file/d/1IufwBqpSopSOLmnk5BxXj7tIiSVD_4N2");
-                            //DrawButtonHREF('Информационные системы и технологии',"https://drive.google.com/file/d/1-Myd6mQLEEoDdFhMbmk13fe4pvbvYnr-");
-                            DrawButtonHREF('Кибербезопасность - это взаимодействие людей',"https://drive.google.com/file/d/1-Myd6mQLEEoDdFhMbmk13fe4pvbvYnr-");
-                            DrawButtonHREF('Технологии будущего',"https://drive.google.com/file/d/1baXO9NqszIi3lVy6uhNEFsQF3axi9sQS");
-                            DrawButtonHREF('Жертвы компьютерного мошенничества',"https://drive.google.com/file/d/1K0TVaIMKXgINJmEwYeIfHWF_IbqCwLIg");
-                            DrawButtonHREF('Законодательство РБ в области Кибербезопасности',"https://drive.google.com/file/d/1shlp8fN6YE2PNV1LD4rYcJjoWbV-frdv");
-                            DrawButtonHREF('Как обезопасить себя',"https://drive.google.com/file/d/1-CnX33qoADJgOkhcD1luvBrwj9Abi9oU");
-                            DrawButtonHREF('Как справляться с грубостью',"https://drive.google.com/file/d/12Z1ofXU-YVeyKlpU0hNBL3hZvQNxa0_u");
-                            DrawButtonHREF('Интернет-безопасность детей',"https://drive.google.com/file/d/1OPklRcs3dWdmE9bwUysiX_oCf14Fkp7y");
-                            DrawButtonHREF('Глоссарий',"https://drive.google.com/file/d/1J6fCrQpCky4ALH5Yt1hQN29FTok9XaOd");
-                            DrawButtonHREF('Кибербезопасность и киберустойчивость',"https://docs.google.com/presentation/d/1I5RlpXqw4_v1mT2BkQZpsZhGEBIBfgJH");
-                            DrawButtonHREF('Информатизация общества и образование',"https://docs.google.com/presentation/d/1SnbABvjVpWTg6s-q1KmTyyNg7DDTpelM");
-                            DrawButtonHREF('Информационные системы, технологии и ресурсы',"https://docs.google.com/presentation/d/1_pUspOgvGJpa-X7GaKf4KYdR_kI-3PCu");
-                            ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
-                        };
-
-                        DrawGradientButton("Тесты", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            itinsoc[14] = !itinsoc[14];
-                        });
-                        if(itinsoc[14]){
-                            /* DrawGradientButton("$Свернуть", new ImGui.Vec2(100, 25), ()=>{
-                                itinsoc[14] = false;
-                            }); */
-                            ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
-                            DrawButtonHREF('Безопасность в сети Интернет',"https://docs.google.com/forms/d/e/1FAIpQLSft0zf_ca1F2lwglCmh-GW8KQfv8e49VgZegJ77Ue9tus-D5g/viewform");
-                            DrawButtonHREF('Информационные системы, технологии и ресурсы',"https://docs.google.com/forms/d/e/1FAIpQLScmeF8lUhvnknH5-DX5LbgPT_j6vUiwpLLuPfGKy04125T4hA/viewform");
-                            DrawButtonHREF('Информатизация общества. Образование и профессиональная деятельность в информационном обществе',"https://docs.google.com/forms/d/e/1FAIpQLSdd5t2Hy33FJ4XZZcw9g69NnZuFGXGchZdkVoh1bGgwYttgog/viewform");
-                            ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
-                        };
-
-                        DrawGradientButton("Назад", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            menustate = 0;
-                        });
-
-                        ImGui.EndChild();
-                        ImGui.PopStyleColor();
-                    }
-                   }
-                   if(menustate == 3) {
-                    ImGui.GetIO().FontGlobalScale = 1;
-                    ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
-                    ImGui.SetCursorPos(new ImGui.Vec2((ImGui.GetWindowSize().x - ImGui.CalcTextSize("Основы веб-конструирования").x)*0.5+1, 26)); //ImGui.TextColored(new ImGui.Vec4(1.0, 0.0, 1.0, 1.0), "Pink");
-                    ImGui.TextColored(new ImGui.Vec4(0.0, 0.0, 0.0, 1.0),"Основы веб-конструирования");
-                    ImGui.SetCursorPos(new ImGui.Vec2((ImGui.GetWindowSize().x - ImGui.CalcTextSize("Основы веб-конструирования").x)*0.5, 25)); //ImGui.TextColored(new ImGui.Vec4(1.0, 0.0, 1.0, 1.0), "Pink");
-                    if(ImGui.Text("Основы веб-конструирования")) menustate = 0;
-
-
-                    var s1 = ImGui.GetStyle();
-
-                    draw_list.AddRectFilled(new ImGui.Vec2(ImGui.GetWindowSize().x/5 - 30, 50 + ImGui.CalcTextSize("AWG").y), new ImGui.Vec2(ImGui.GetWindowSize().x*4 / 5 + 30, ImGui.GetWindowSize().y), ImGui.COL32(255, 255, 255, 255));
-                    ImGui.SetCursorPos(new ImGui.Vec2(ImGui.GetWindowSize().x/5, 60 + ImGui.CalcTextSize("AWG").y));
-                    {
-                        let window_flags = ImGui.WindowFlags.None;
-                        window_flags |= ImGui.WindowFlags.AlwaysVerticalScrollbar;
-                        ImGui.PushStyleColor(ImGui.Col.ChildBg, ImGui.COL32(255, 255, 255, 255));
-                        ImGui.PushStyleColor(ImGui.Col.Text, ImGui.COL32(0, 0, 0, 255));
-                        ImGui.BeginChild("Child", new ImGui.Vec2(ImGui.GetWindowSize().x * 4/5 - ImGui.GetWindowSize().x/5, ImGui.GetWindowSize().y - 50 - ImGui.CalcTextSize("AWG").y), false, window_flags);
-                        
-                        
-                        ImGui.GetIO().FontGlobalScale = 0.3;
-
-                        DrawGradientButton("Веб-сайт", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            webconstr[0] = !webconstr[0];
-                        });
-                        if(webconstr[0]){
-                            ImGui.GetIO().FontGlobalScale = 0.5;
-ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
-DrawIMG(images.web[0], ImGui.GetWindowSize().x);
-ImGui.TextWrapped(` Веб-сайт представляет собой группу веб-страниц, связанных между собой гиперссылками. Существует четыре основных типа веб-сайтов:\n\n`);
-ImGui.BulletText("  Презентационные - реклама и продвижение определенных услуг и акций.");
-ImGui.BulletText("  Корпоративные - представляют компанию или предприятие.");
-ImGui.BulletText("  Онлайн-сервисы - направлены на повседневные нужды.");
-ImGui.BulletText("  Электронные магазины - созданы для получения прибыли от продажи товаров.");
-ImGui.TextWrapped(`\nПо технологии создания сайты делят на статические (информация хранится на сервере и отображается в браузере в одном и том же виде) и динамические (частично, а то и полностью генерируются в браузере или на сервере в процессе исполнения запроса пользователя).
-Также сайты разделяют в зависимости от типа взаимодействия с пользователем. Бывают пассивные сайты (информацию на них можно только просматривать) и интерактивные (предусмотрена возможность обмена данными с сервером).
-Все веб-страницы являются гипертекстовыми документами. Язык HTML (HyperText Markup Language) является одним из самых распространенных языков создания веб-сайтов. На этом языке задаются параметры и структура веб-страниц. Документы, написанные на языке HTML, имеют расширение .html. Основные компоненты этого языка - теги и атрибуты.
-
-  Теги - набор специальных символов языка HTML, которые идентифицируют html-документ, задают параметры страницы, определяют разделы и положение элементов на ней.\n\n`);
-
-ImGui.BulletText("  <html> - идентифицирует код html-документ, в него входят контейнеры <head> и <body>.");
-ImGui.BulletText("  <head> - содержит название документа, теги для поисковых машин. Эти данные не будут отображаться на исходной веб-странице.");
-ImGui.BulletText("  <body> - контейнер, который содержит отображающуюся на странице информацию.");
-
-ImGui.GetIO().FontGlobalScale = 1; 
-                        };
-
-                        DrawGradientButton("Создание веб-страниц", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            webconstr[1] = !webconstr[1];
-                        });
-                        if(webconstr[1]){
-                            ImGui.GetIO().FontGlobalScale = 0.5;
-ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
-ImGui.TextWrapped(` Важно понимать, что для создания веб-сайта важно не столько знание самого языка программирования, сколько излагающейся на сайте темы. Чтобы создать свой веб-сайт, достаточно воспользоватьмся протстым блокнотом, который есть на каждом компьютере, или другим текстовым редактором, или специальной программой для написания html-кода, или визуальным веб-редактором, или специальным конструктором сайтов. В случае с двумя последними создание веб-страниц окажется даже легче, ведь для работы с ними в принципе нет необходимости знать языка HTML. При работе с текстовым редактором документ нужно сохранять с расширением .html.
-
-  Любая веб-страница содержит следующие элементы:\n\n`);
-ImGui.BulletText("  Заголовок (часто - логотип)");
-ImGui.BulletText("  Основная часть (размещение контента)");
-ImGui.BulletText("  Элементы навигации (например, меню)");
-ImGui.BulletText("  Нижний колонтитул (размещение информации о разработчике или контактных данных)");
-ImGui.BulletText("  Боковые панели (размещение ссылок, рекламы и т.д)");
-ImGui.GetIO().FontGlobalScale = 1; 
-                        };
-
-                        DrawGradientButton("Каскадные таблицы стилей", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            webconstr[2] = !webconstr[2];
-                        });
-                        if(webconstr[2]){
-                            ImGui.GetIO().FontGlobalScale = 0.5;
-ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
-ImGui.TextWrapped(` CSS (Cascading Style Sheets) - формальный язык описания внешнего вида документа. CSS дополняет возможности HTML.
-
-Вынесение стилей документа в отдельный файл значительно упрощает создание веб-сайтов, поскольку отпадает необходимость отдельно прописывать параметры для каждого элемента веб-страницы.
-
-  Способы подключения CSS к документу:\n\n`);
-ImGui.BulletText("  Встроенные стили - непосредственно в открывающем теге.");
-ImGui.BulletText("  Таблицы стилей - стилевое описание для всех идентичных элементов. Задаются тегом <style>.");
-ImGui.BulletText("  Внешние таблицы стилей - отдельные файлы с расширением .css, которые содержат стилевые правила.");
-DrawIMG(images.web[1], ImGui.GetWindowSize().x);
-ImGui.GetIO().FontGlobalScale = 1; 
-                        };
-
-                        DrawGradientButton("Графика на веб-страницах", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            webconstr[3] = !webconstr[3];
-                        });
-                        if(webconstr[3]){
-                            DrawIMG(images.web[2], ImGui.GetWindowSize().x);
-                        };
-
-                        DrawGradientButton("Звук на веб-страницах", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            webconstr[4] = !webconstr[4];
-                        });
-                        if(webconstr[4]){
-                            DrawIMG(images.web[3], ImGui.GetWindowSize().x);
-                        };
-
-                        DrawGradientButton("Видео на веб-страницах", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            webconstr[5] = !webconstr[5];
-                        });
-                        if(webconstr[5]){
-                            DrawIMG(images.web[4], ImGui.GetWindowSize().x);
-                        };
-
-                        DrawGradientButton("Этапы создания веб-сайта", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            webconstr[6] = !webconstr[6];
-                        });
-                        if(webconstr[6]){
-                            ImGui.GetIO().FontGlobalScale = 0.5;
-ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
-ImGui.TextWrapped(` Создание веб-сайта - это не только написание кода. Это процесс, включающий в себя следующие основные этапы:\n\n`);
-ImGui.BulletText("  Проектирование (поставить цели и задачи сайта).");
-ImGui.BulletText("  Разработка структуры (грамотно распределить информацию по веб-страницам).");
-ImGui.BulletText("  Создание дизайна (продумать графическую составляющую, цветовую палитру сайта).");
-ImGui.BulletText("  Создание мультимедиа-компонентов (создать графическую и звуковую составляющую, видео).");
-ImGui.BulletText("  Верстка страниц и шаблонов (создать html-код).");
-ImGui.BulletText("  Программирование (при создании сложного многофункционального сайта).");
-ImGui.BulletText("  Наполнение контентом.");
-ImGui.BulletText("  Тестирование и внесение корректировок.");
-ImGui.BulletText("  Публикация сайта на хостинге.");
-ImGui.BulletText("  Дальнейшее обслуживание.");
-ImGui.GetIO().FontGlobalScale = 1; 
-                        };
-
-                        /*DrawGradientButton("Примеры сайтов", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            webconstr[7] = !webconstr[7];
-                        });
-                        if(webconstr[7]){ 
-                            ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
-                            DrawButtonHREF('Пример веб-страницы 1',"https://evsukanna.wixsite.com/proojazz");
-                            DrawButtonHREF('Пример веб-страницы 2',"https://alexandrakib122.wixsite.com/fashion");
-                            DrawButtonHREF('Пример веб-страницы 3',"https://rommelervin797.wixsite.com/my-site-1");
-                            DrawButtonHREF('Пример веб-страницы 4',"https://nazarau0911.wixsite.com/website-2");
-                            DrawButtonHREF('Пример веб-страницы 5',"https://nastassya04.wixsite.com/my-site-1");
-                            DrawButtonHREF('Пример веб-страницы 6',"https://rusichka408.wixsite.com/sskz");
-                            DrawButtonHREF('Пример веб-страницы 7',"https://tiglow.wixsite.com/classicgames");
-                            ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
-                        }*/
-
-                        DrawGradientButton("Теория", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            webconstr[8] = !webconstr[8];
-                        });
-                        if(webconstr[8]){
-                            ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
-                            DrawButtonHREF('Основы веб-конструирования',"https://eior.by/catalog_lecture/11-klass/informatika/5.php");
-                            DrawButtonHREF('Создание веб-страниц',"https://eior.by/catalog_lecture/11-klass/informatika/6.php");
-                            DrawButtonHREF('Рефлексия урока',"https://drive.google.com/file/d/1VHuRNjjrJQ0-FZwIOmmHJ46zNZz-FGIx");
-                            DrawButtonHREF('Понятие о каскадных таблицах стилей',"https://eior.by/catalog_lecture/11-klass/informatika/7.php");
-                            DrawButtonHREF('Визуальное веб-конструирование',"https://eior.by/catalog_lecture/11-klass/informatika/9.php");
-                            DrawButtonHREF('Презентация по каскадным таблицам стилей',"https://drive.google.com/file/d/1sJPRTesd655-3L1tFxOAwPAjh9__wmgk/view");
-                            DrawButtonHREF('Визуальное веб-конструирование',"https://eior.by/catalog_lecture/11-klass/informatika/9.php");
-                            DrawButtonHREF('Взаимосвязь веб-программирования, веб-разработки и веб-технологий',"https://drive.google.com/file/d/1kTzi87pLt6t5DorDukwRBRz7-piqJ-ng");
-                            ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
-                        };
-
-                        DrawGradientButton("Тесты", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            webconstr[9] = !webconstr[9];
-                        });
-                        if(webconstr[9]){
-                            ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
-                            DrawButtonHREF('Основные понятия',"https://docs.google.com/forms/d/e/1FAIpQLScePAZBecVAkamQxLG7TR19FlFgpW6gGXiDA7slii3rLtmw-A/viewform");
-                            DrawButtonHREF('Основы веб-конструирования',"https://docs.google.com/forms/d/e/1FAIpQLSfRCyPfSKewAYtlG4DTo1FMfZbJ_uLrr7IA_i3OmDozTHSK6A/viewform");
-                            DrawButtonHREF('Создание веб-страниц',"https://docs.google.com/forms/d/e/1FAIpQLSdxIBpix5-EDnMH9OfGyPwqJBZv0B73WGsa0ZLkre3yiPgJcw/viewform");
-                            DrawButtonHREF('Вопросы по созданию веб-страниц',"https://drive.google.com/file/d/1lZvriE1KrmQeFLzNFWhNhbwPV8HtBKc_/view");
-                            DrawButtonHREF('Понятие о каскадных таблицах стилей',"https://docs.google.com/forms/d/e/1FAIpQLSe_VEuPDF51ajWxmLwGeGJhHvp8JvLSYf7Rd0mXosYqoR-VRA/viewform?hr_submission=ChkI78m4ooMQEhAIxZn3l8sMEgcI05G8raQLEAE");
-                            DrawButtonHREF('Визуальное веб-конструирование',"https://docs.google.com/forms/d/e/1FAIpQLSdOQsFwueu893eiDntPn3AHc6BVUOxiqAyLafo7-D28D2C8Ww/viewform?hr_submission=ChkI78m4ooMQEhAIvr_eu8cMEgcI05G8raQLEAA");
-                            DrawButtonHREF('Мультимедиа на веб-страницах',"https://docs.google.com/forms/d/e/1FAIpQLSd_rCOkcA8b_STHTw7jF3g6qrT7l41lex2ypT3zjb7nWap4zw/viewform?hr_submission=ChkI78m4ooMQEhAI6KKjx-UMEgcI05G8raQLEAE");
-                            DrawButtonHREF('Визуальное веб-конструирование',"https://docs.google.com/forms/d/e/1FAIpQLSdOQsFwueu893eiDntPn3AHc6BVUOxiqAyLafo7-D28D2C8Ww/viewform?hr_submission=ChkI78m4ooMQEhAIvr_eu8cMEgcI05G8raQLEAA");
-                            ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
-                        };
-
-                        DrawGradientButton("Назад", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            menustate = 0;
-                        });
-
-                        ImGui.EndChild();
-                        ImGui.PopStyleColor();
-                    }
-                   }
-                   if(menustate == 4) {
-                    ImGui.GetIO().FontGlobalScale = 1;
-                    ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
-                    ImGui.SetCursorPos(new ImGui.Vec2((ImGui.GetWindowSize().x - ImGui.CalcTextSize("Введение в ООП").x)*0.5+1, 26)); //ImGui.TextColored(new ImGui.Vec4(1.0, 0.0, 1.0, 1.0), "Pink");
-                    ImGui.TextColored(new ImGui.Vec4(0.0, 0.0, 0.0, 1.0),"Введение в ООП");
-                    ImGui.SetCursorPos(new ImGui.Vec2((ImGui.GetWindowSize().x - ImGui.CalcTextSize("Введение в ООП").x)*0.5, 25)); //ImGui.TextColored(new ImGui.Vec4(1.0, 0.0, 1.0, 1.0), "Pink");
-                    if(ImGui.Text("Введение в ООП")) menustate = 0;
-
-
-                    var s1 = ImGui.GetStyle();
-
-                    draw_list.AddRectFilled(new ImGui.Vec2(ImGui.GetWindowSize().x/5 - 30, 50 + ImGui.CalcTextSize("AWG").y), new ImGui.Vec2(ImGui.GetWindowSize().x*4 / 5 + 30, ImGui.GetWindowSize().y), ImGui.COL32(255, 255, 255, 255));
-                    ImGui.SetCursorPos(new ImGui.Vec2(ImGui.GetWindowSize().x/5, 60 + ImGui.CalcTextSize("AWG").y));
-                    {
-                        let window_flags = ImGui.WindowFlags.None;
-                        window_flags |= ImGui.WindowFlags.AlwaysVerticalScrollbar;
-                        ImGui.PushStyleColor(ImGui.Col.ChildBg, ImGui.COL32(255, 255, 255, 255));
-                        ImGui.PushStyleColor(ImGui.Col.Text, ImGui.COL32(0, 0, 0, 255));
-                        ImGui.BeginChild("Child", new ImGui.Vec2(ImGui.GetWindowSize().x * 4/5 - ImGui.GetWindowSize().x/5, ImGui.GetWindowSize().y - 50 - ImGui.CalcTextSize("AWG").y), false, window_flags);
-                        
-
-                        DrawGradientButton("ООП", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            oop[0] = !oop[0];
-                        });
-                        if(oop[0]){
-                            ImGui.GetIO().FontGlobalScale = 0.5;
-ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
-ImGui.TextWrapped(` Объектно-ориентированное программирование (ООП) - технология создания программ, в основе которой лежит использование объектов, являющихся экземпляром определенного класса, и методов, характеризующих их поведение. `);
-DrawIMG(images.oop[0], ImGui.GetWindowSize().x);
-ImGui.GetIO().FontGlobalScale = 1; 
-                        };
-
-                        DrawGradientButton("ООП в Pascal", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            oop[1] = !oop[1];
-                        });
-                        if(oop[1]){
-                            ImGui.GetIO().FontGlobalScale = 0.5;
-ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
-ImGui.TextWrapped(` Рассмотрим ООП на примере PascalABC. `);
-DrawIMG(images.oop[1], ImGui.GetWindowSize().x);
-ImGui.TextWrapped(` Разместим на форме кнопку. Чтобы создать обработчик события для нажатия на кнопку левой клавишей мыши, нужно сначала одним щелчком мыши выделить кнопку, а затем во вкладке «События» двойным щелчком выбрать событие мыши Click.
- После во вкладке «код» необходимо прописать, что именно будет происходить при совершении события. В этом случае мы указываем, что при событии Click будет происходить изменение цвета формы.`);
- DrawIMG(images.oop[2], ImGui.GetWindowSize().x);
- DrawIMG(images.oop[3], ImGui.GetWindowSize().x);
- ImGui.GetIO().FontGlobalScale = 1; 
-                        };
-
-                        DrawGradientButton("Стандартная библиотека элементов в PascalABC", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            oop[2] = !oop[2];
-                        });
-                        if(oop[2]){
-                            DrawIMG(images.oop[4], ImGui.GetWindowSize().x);
-                        };
-                        DrawGradientButton("PictureBox", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            oop[3] = !oop[3];
-                        });
-                        if(oop[3]){
-                            ImGui.GetIO().FontGlobalScale = 0.5;
-ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
-ImGui.TextWrapped(` Также на языке Pascal возможна работа с графикой. Для организации взаимодействия пользователя с графикой используется компонент PictureBox. Этот компонент является контейнером, в который помещается изображение.
-Чтобы вставить картинку, нужно выбрать свойство Image компонента PictureBox и вставить картинку из файлов компьютера.`);
-DrawIMG(images.oop[5], ImGui.GetWindowSize().x);
-ImGui.TextWrapped(`Если нас не удовлетворяет вид вставленной картинки, то можно внести изменение в свойство SizeMode, отвечающее за способ ее отображения.\т\т `);
-ImGui.BulletText("  Zoom (в случае изменения размеров контейнера будут сохраняться пропорции изображения).");
-ImGui.BulletText("  AutoSize (размер контейнера будет автоматически подгоняться под размер рисунка).");
-ImGui.BulletText("  Normal (левый верхний угол рисунка совмещен с левым верхним углом контейнера).");
-ImGui.BulletText("  StretchImage (рисунок вписывается в контейнер).");
-ImGui.BulletText("  CenterImage (рисунок будет отцентрирован относительно компонента).");
-ImGui.GetIO().FontGlobalScale = 1; 
-                        };
-
-                        DrawGradientButton("Диалоговые окна и меню", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            oop[4] = !oop[4];
-                        });
-                        if(oop[4]){
-                            DrawIMG(images.oop[6], ImGui.GetWindowSize().x);
-                            ImGui.GetIO().FontGlobalScale = 0.5;
-ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
-ImGui.TextWrapped(` Диалоговые окна можно организовать в меню. Существует несколько типов меню:\т\т `);
-ImGui.BulletText("  Главное меню с выпадающими списками разделов.");
-ImGui.BulletText("  Каскадные меню, в которых разделу первичного меню ставится в соответствие список подразделов. ");
-ImGui.BulletText("  Контекстные меню, появляющиеся при нажатии правой клавишей мыши на объект.\т");
-
-ImGui.TextWrapped(` В PascalABC.Net меню создаются компонентами MenuStrip и ContextMenuStrip, расположенными на панели «Меню и панели инструментов».
-Сами компоненты размещаются в специальной области под формой. На этапе выполнения программы главное меню будет помещено на стандартное место - верхнюю часть формы. Для добавления новых пунктов меню нужно кликнуть левой клавишей мыши в верхней части формы и заполнить ячейки, соответствующие пунктам меню. Каждый пункт меню является отдельным объектом, основным событием которого является Click. `);
-ImGui.GetIO().FontGlobalScale = 1; 
-                        };
-
-                        DrawGradientButton("Примеры программ", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            oop[5] = !oop[5];
-                        });
-                        if(oop[5]){
-
-                            ImGui.GetIO().FontGlobalScale = 0.5;
-ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
-ImGui.TextWrapped(` Таким образом, грамотно используя объекты, события и имея простейшие знания в написании кода, можно писать собственные небольшие приложения.
-Это может быть программа строящая диаграммы по заданым параметрам `);
-DrawIMG(images.oop[7], ImGui.GetWindowSize().x);
-ImGui.TextWrapped(` 
-Или графический редактор
-`);
-DrawIMG(images.oop[8], ImGui.GetWindowSize().x);
-ImGui.TextWrapped(`   
-Или программу, строящую граффик функции 
-`);
-DrawIMG(images.oop[9], ImGui.GetWindowSize().x);
-DrawButtonHREF("Исходный код графического редактора ","https://drive.google.com/drive/folders/1PukfpEYL232IHijyyKIg0wBJyiShyUk-");
-DrawButtonHREF("Исходный код калькулятора ","https://drive.google.com/drive/folders/14n7UayDhFT4uc2xK76fvYeeD35VROhjc");
-DrawButtonHREF("Исходный код блокнота ","https://drive.google.com/drive/folders/1QpFV0zHdfJJRUaicUebHSUbHEAxDgB9R");
-ImGui.GetIO().FontGlobalScale = 1; 
-
-                        };
-
-                        DrawGradientButton("Теория", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            oop[6] = !oop[6];
-                        });
-                        if(oop[6]){
-                            ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
-                            DrawButtonHREF('Объектно-ориентированное программирование',"https://ru.wikipedia.org/wiki/%D0%9E%D0%B1%D1%8A%D0%B5%D0%BA%D1%82%D0%BD%D0%BE-%D0%BE%D1%80%D0%B8%D0%B5%D0%BD%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%BD%D0%BE%D0%B5_%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5");
-                            DrawButtonHREF('Объектно-событийная модель работы программы. Визуальная среда разработки программ ',"https://eior.by/catalog_lecture/11-klass/informatika/1.php");
-                            DrawButtonHREF('Проектирование интерфейса оконного приложения с использованием элементов управления ',"https://eior.by/catalog_lecture/11-klass/informatika/2.php");
-                            DrawButtonHREF('Элементы управления для работы с графикой  ',"https://eior.by/catalog_lecture/11-klass/informatika/3.php");
-                            DrawButtonHREF('Создание приложений  ',"https://eior.by/catalog_lecture/11-klass/informatika/4.php");
-                            ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
-                        };
-
-                        DrawGradientButton("Тесты", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            oop[7] = !oop[7];
-                        });
-                        if(oop[7]){
-                            ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
-                            DrawButtonHREF('Объектно-ориентированное программирование ',"https://docs.google.com/forms/d/e/1FAIpQLSf7BU34dbUCs3dCx3KIq-fSoB7OjbBT-MAHK9iussuC33O2hg/viewform?hr_submission=ChkIudusuooBEhAIjYSjwakMEgcI05G8raQLEAE");
-                            DrawButtonHREF('Проектирование интерфейса оконного приложения с использованием элементов управления',"https://docs.google.com/forms/d/e/1FAIpQLSeBJ57VLAcZn58Y15Gl8xuu5wuwD0n9nrAtqEP2AYK-sfGPJQ/viewform?hr_submission=ChkIudusuooBEhAI97y1w6kMEgcI05G8raQLEAE");
-                            ImGui.InvisibleButton("#invb", new ImGui.Vec2(100,15))
-                        };
-
-                        DrawGradientButton("Назад", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            menustate = 0;
-                        });
-
-                        ImGui.EndChild();
-                        ImGui.PopStyleColor();
-                    }
-                   }
-                   if(menustate == 5) {
-                    ImGui.GetIO().FontGlobalScale = 1;
-                    ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
-                    ImGui.SetCursorPos(new ImGui.Vec2((ImGui.GetWindowSize().x - ImGui.CalcTextSize("Авторы").x)*0.5+1, 26)); //ImGui.TextColored(new ImGui.Vec4(1.0, 0.0, 1.0, 1.0), "Pink");
-                    ImGui.TextColored(new ImGui.Vec4(0.0, 0.0, 0.0, 1.0),"Авторы");
-                    ImGui.SetCursorPos(new ImGui.Vec2((ImGui.GetWindowSize().x - ImGui.CalcTextSize("Авторы").x)*0.5, 25)); //ImGui.TextColored(new ImGui.Vec4(1.0, 0.0, 1.0, 1.0), "Pink");
-                    if(ImGui.Text("Авторы")) menustate = 0;
-
-
-                    var s1 = ImGui.GetStyle();
-
-                    draw_list.AddRectFilled(new ImGui.Vec2(ImGui.GetWindowSize().x/5 - 30, 50 + ImGui.CalcTextSize("AWG").y), new ImGui.Vec2(ImGui.GetWindowSize().x*4 / 5 + 30, ImGui.GetWindowSize().y), ImGui.COL32(255, 255, 255, 255));
-                    ImGui.SetCursorPos(new ImGui.Vec2(ImGui.GetWindowSize().x/5, 60 + ImGui.CalcTextSize("AWG").y));
-                    {
-                        let window_flags = ImGui.WindowFlags.None;
-                        window_flags |= ImGui.WindowFlags.AlwaysVerticalScrollbar;
-                        ImGui.PushStyleColor(ImGui.Col.ChildBg, ImGui.COL32(255, 255, 255, 255));
-                        ImGui.PushStyleColor(ImGui.Col.Text, ImGui.COL32(0, 0, 0, 255));
-                        ImGui.BeginChild("Child", new ImGui.Vec2(ImGui.GetWindowSize().x * 4/5 - ImGui.GetWindowSize().x/5, ImGui.GetWindowSize().y - 50 - ImGui.CalcTextSize("AWG").y), false, window_flags);
-                        
-                        ImGui.SetCursorPosX((ImGui.GetWindowSize().x - ImGui.CalcTextSize("Шишпоренок Кирилл").x)*0.5);
-                        ImGui.Text("Шишпоренок Кирилл");
-
-                        ImGui.GetIO().FontGlobalScale = 0.5;
-                        ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
-                        ImGui.SetCursorPosX((ImGui.GetWindowSize().x - ImGui.CalcTextSize("Программист, редактор").x)*0.5);
-                        ImGui.Text("Программист, редактор");
-                        ImGui.GetIO().FontGlobalScale = 1;
-                        ImGui.PopFont();
-
-
-                        /*ImGui.SetCursorPosX((ImGui.GetWindowSize().x - ImGui.CalcTextSize("Андрос Артём").x)*0.5);
-                        ImGui.Text("Андрос Артём");
-
-                        ImGui.GetIO().FontGlobalScale = 0.5;
-                        ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
-                        ImGui.SetCursorPosX((ImGui.GetWindowSize().x - ImGui.CalcTextSize("Редактор").x)*0.5);
-                        ImGui.Text("Редактор");
-                        ImGui.GetIO().FontGlobalScale = 1;
-                        ImGui.PopFont();*/
-
-
-                        ImGui.SetCursorPosX((ImGui.GetWindowSize().x - ImGui.CalcTextSize("Карневич Лариса Геннадьевна").x)*0.5);
-                        ImGui.Text("Карневич Лариса Геннадьевна");
-
-                        ImGui.GetIO().FontGlobalScale = 0.5;
-                        ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
-                        ImGui.SetCursorPosX((ImGui.GetWindowSize().x - ImGui.CalcTextSize("Научный руководитель проекта").x)*0.5);
-                        ImGui.Text("Научный руководитель проекта");
-                        ImGui.GetIO().FontGlobalScale = 1;
-                        ImGui.PopFont();
-
-
-                        DrawGradientButton("Назад", new ImGui.Vec2(ImGui.GetWindowSize().x, 70), ()=>{
-                            menustate = 0;
-                        });
-
-                        ImGui.EndChild();
-                        ImGui.PopStyleColor();
-                    }
                    }
                    ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[2]);
-                   //ImGui.GetIO().FontGlobalScale = 0.7;
-                   //io.Fonts.Fonts[2];
                 }
             }
             
@@ -1252,20 +1255,17 @@ ImGui.GetIO().FontGlobalScale = 1;
             ImGui.Checkbox("Another Window", (value = show_another_window) => show_another_window = value);
             ImGui.Checkbox("Gradient Drawable", (value = gradientstate) => gradientstate = value);
             ImGui.Checkbox("Rainbow", (value = rnb) => rnb = value);
-            ImGui.SliderFloat("float", (value = f) => f = value, -300.0, 300.0);
-            ImGui.SliderFloat("dxx", (value = dxx) => dxx = value, -1.0, 1.0);
-            ImGui.SliderFloat("dyy", (value = dyy) => dyy = value, -300.0, 300.0);
-            ImGui.SliderFloat("da", (value = da) => da = value, -1.0, 1.0);
             ImGui.ColorEdit3("clear color", clear_color);
             if (ImGui.Button("Button"))
-                menustate++;
-            if(menustate >=6) menustate = 0;
+                menustate--;
+            if(menustate >=7) menustate = 0;
+            if(menustate <0) menustate = 6;
             ImGui.SameLine();
             ImGui.Text(`menustate = ${menustate}`);
             ImGui.Text(`Application average ${(1000.0 / ImGui.GetIO().Framerate).toFixed(3)} ms/frame (${ImGui.GetIO().Framerate.toFixed(1)} FPS)`);
             
-            DrawGradientButton("test", new ImGui.Vec2(1000,100),null);
-            DrawGradientButton("а на русском?", new ImGui.Vec2(1000,70),null);
+            DrawGradientButton("test", new ImGui.Vec2(1000,100),()=>{console.log("clicked")});
+            DrawGradientButton("а на русском?", new ImGui.Vec2(1000,70),()=>{console.log("clicked")});
 
             ImGui.Checkbox("Memory Editor", (value = memory_editor.Open) => memory_editor.Open = value);
             if (memory_editor.Open)
@@ -1502,7 +1502,7 @@ ImGui.GetIO().FontGlobalScale = 1;
         }
     }
     function CreateTextures() {
-        images.mod.forEach((e,i,a) => {
+        Utils.images.forEach((e,i,a) => {
             if (typeof document !== "undefined") {
                 e.temp = document.createElement("img");
                 e.temp.crossOrigin = "anonymous";
@@ -1534,102 +1534,7 @@ ImGui.GetIO().FontGlobalScale = 1;
                 e.texture = e.temp;
             }
         })
-        images.web.forEach((e,i,a) => {
-            if (typeof document !== "undefined") {
-                e.temp = document.createElement("img");
-                e.temp.crossOrigin = "anonymous";
-                e.temp.src = e.src;
-            }
-            const gl = ImGui_Impl.gl;
-            if (gl) {
-                const width = e.size[0] + 1000;
-                const height = e.size[1] + 1000;
-                const pixels = new Uint8Array(4 * width * height);
-                e.texture = gl.createTexture();
-                gl.bindTexture(gl.TEXTURE_2D, e.texture);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
-                if (e.temp) {
-                    e.temp.addEventListener("load", (event) => {
-                        if (e.temp) {
-                            gl.bindTexture(gl.TEXTURE_2D, e.texture);
-                            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, e.temp);
-                        }
-                    });
-                }
-            }
-            const ctx = ImGui_Impl.ctx;
-            if (ctx) {
-                e.texture = e.temp;
-            }
-        })
-        images.soc.forEach((e,i,a) => {
-            if (typeof document !== "undefined") {
-                e.temp = document.createElement("img");
-                e.temp.crossOrigin = "anonymous";
-                e.temp.src = e.src;
-            }
-            const gl = ImGui_Impl.gl;
-            if (gl) {
-                const width = e.size[0] + 1000;
-                const height = e.size[1] + 1000;
-                const pixels = new Uint8Array(4 * width * height);
-                e.texture = gl.createTexture();
-                gl.bindTexture(gl.TEXTURE_2D, e.texture);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
-                if (e.temp) {
-                    e.temp.addEventListener("load", (event) => {
-                        if (e.temp) {
-                            gl.bindTexture(gl.TEXTURE_2D, e.texture);
-                            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, e.temp);
-                        }
-                    });
-                }
-            }
-            const ctx = ImGui_Impl.ctx;
-            if (ctx) {
-                e.texture = e.temp;
-            }
-        })
-        images.oop.forEach((e,i,a) => {
-            if (typeof document !== "undefined") {
-                e.temp = document.createElement("img");
-                e.temp.crossOrigin = "anonymous";
-                e.temp.src = e.src;
-            }
-            const gl = ImGui_Impl.gl;
-            if (gl) {
-                const width = e.size[0] + 1000;
-                const height = e.size[1] + 1000;
-                const pixels = new Uint8Array(4 * width * height);
-                e.texture = gl.createTexture();
-                gl.bindTexture(gl.TEXTURE_2D, e.texture);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
-                if (e.temp) {
-                    e.temp.addEventListener("load", (event) => {
-                        if (e.temp) {
-                            gl.bindTexture(gl.TEXTURE_2D, e.texture);
-                            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, e.temp);
-                        }
-                    });
-                }
-            }
-            const ctx = ImGui_Impl.ctx;
-            if (ctx) {
-                e.texture = e.temp;
-            }
-        })
+
     }
     function CleanUpImage() {
         const gl = ImGui_Impl.gl;
