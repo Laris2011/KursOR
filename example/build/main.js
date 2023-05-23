@@ -16,22 +16,11 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
     var gradientstate = 1;
     var rnb = 0;
     
+    
     //bg
     var image_src = "https://raw.githubusercontent.com/3equals3/KursOR/main/imgui/misc/images/bg1.png";
     var image_texture;
     var image_temp;
-
-    var cmodels = [false,false,false,false,false,false,false,false];
-    var itinsoc = [false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false];
-    var webconstr = [false,false,false,false,false,false,false,false,false,false,false];
-    var oop = [false,false,false,false,false,false,false,false,false,false];
-
-    var images = new Object({
-        mod: new Array(),
-        soc: new Array(),
-        web: new Array(),
-        oop: new Array()
-    })
 
     var Utils = {
         textSize: 0.5,
@@ -177,7 +166,7 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
     var forExample = {
         category: 6, //раздел: mod 1,soc 2,web 3,oop 4,search 5, debug 6
         chapter: "forExample.chapter",   //название
-        opened: false,                   //открыт ли параграф или нет
+        opened: true,                   //открыт ли параграф или нет
         text: [                          //раздел с текстами, сюда записываем буквально все чтоб работал поиск
             "forExample.text[0]",//0     //так его можно получать. В идеале вместо новой строки использовать \n или если нужен большой пробел то функцию для этого
             "forExample.text[1]",//1
@@ -933,7 +922,14 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
             return ImGui.GetIO().Fonts.AddFontFromMemoryTTF(yield LoadArrayBuffer(url), size_pixels, font_cfg, glyph_ranges);
         });
     }
-
+    function UNIQUE(key) { return key; }
+    function STATIC(key, init) {
+        let value = _static_map.get(key);
+        if (value === undefined) {
+            _static_map.set(key, value = new Static(init));
+        }
+        return value;
+    }
     function _init() {
         return __awaiter(this, void 0, void 0, function* () {
             const EMSCRIPTEN_VERSION = `${ImGui.bind.__EMSCRIPTEN_major__}.${ImGui.bind.__EMSCRIPTEN_minor__}.${ImGui.bind.__EMSCRIPTEN_tiny__}`;
@@ -1076,7 +1072,7 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
     var dyy = 0;
     var da = 0;
 
-
+    
     // Main loop
     function _loop(time) {
         ImGui_Impl.NewFrame(time);
@@ -1196,13 +1192,13 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
                         }
                         changecolors();
                         ImGui.SetCursorPos(new ImGui.Vec2(((ImGui.GetWindowSize().x)*0.5) - (100/ aspect_ratio.y) - 2 - (850/4.3/aspect_ratio.y) - 30/aspect_ratio.y, 100 + 580/aspect_ratio.y));
-                        if(ImGui.Button("Авторы", new ImGui.Vec2(200 / aspect_ratio.y, 200/ aspect_ratio.y))) menustate = 5;
+                        if(ImGui.Button("Поиск", new ImGui.Vec2(200 / aspect_ratio.y, 200/ aspect_ratio.y))) menustate = 5;
                         ImGui.PopStyleColor(4);
                         if (ImGui.IsItemHovered()) {
                             ImGui.PushStyleColor(ImGui.Col.Border, new ImGui.Vec4(19/255,148/255,197/255,255));
                             ImGui.PushStyleColor(ImGui.Col.PopupBg, ImGui.GetColorU32(ImGui.COL32(clear_color.x* 0xff, clear_color.y* 0xff, clear_color.z* 0xff, 255)));
                             ImGui.PushStyleColor(ImGui.Col.Text, new ImGui.Vec4(19/255,148/255,197/255,255));
-                            ImGui.SetTooltip("Авторы");
+                            ImGui.SetTooltip("Поиск");
                             ImGui.PopStyleColor(3); //2
                         }
                         style.FrameRounding = 0;
@@ -1216,7 +1212,38 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
                             window_flags |= ImGui.WindowFlags.AlwaysVerticalScrollbar;
                             ImGui.PushStyleColor(ImGui.Col.Text, ImGui.COL32(0, 0, 0, 255));
                             ImGui.BeginChild("Child", new ImGui.Vec2(ImGui.GetWindowSize().x * 4/5 - ImGui.GetWindowSize().x/5, ImGui.GetWindowSize().y - 50 - ImGui.CalcTextSize("AWG").y), false, window_flags);
-                            List.forEach((e,i,a)=>{
+                            if(menustate == 5){
+                                ImGui.PushStyleColor(ImGui.Col.FrameBg, ImGui.GetColorU32(ImGui.COL32(clear_color.x* 0xff, clear_color.y* 0xff, clear_color.z* 0xff, 255)));
+                                ImGui.GetIO().FontGlobalScale = 0.75;
+                                ImGui.PushFont(ImGui.GetIO().Fonts.Fonts[6]);
+                                const search = STATIC(UNIQUE("str0#16cfd787"), new ImGui.StringBuffer(128, ""));
+                                ImGui.InputText("Строка поиска", search.value, ImGui.ARRAYSIZE(search.value));
+                                ImGui.GetIO().FontGlobalScale = 1;
+                                ImGui.PopStyleColor();
+                                //console.log(search.value.buffer);
+
+                                
+
+                                List.forEach((e,index,a)=>{
+                                    //if(e.chapter.includes(search.value.buffer.toString()) && search.value.buffer.toString().charAt(0) != " " && search.value.buffer.toString().length >0) Utils.drawGradientButton(e);
+                                    if(e.category != 6 && e.category != 5 && search.value.buffer.charAt(0) != " " && search.value.buffer.length > 0){
+                                        if(e.text != undefined){
+                                            let found = false;
+                                            for(var i = 0;i<e.text.length;i++){
+                                                if(!e.text[i].includes("https://") && e.text[i].includes(search.value.buffer)){
+                                                    found = true;
+                                                }
+                                            }
+                                            if(found){
+                                                Utils.drawGradientButton(e);
+                                                if(e.opened) e.draw();
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+
+                            if(menustate != 5)List.forEach((e,i,a)=>{
                                 if(e.category == menustate){
                                     Utils.drawGradientButton(e);
                                     if(e.opened) e.draw();
@@ -1695,6 +1722,7 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
                     this.access = (value = this.value) => this.value = value;
                 }
             };
+            _static_map = new Map();
             source = [
                 "ImGui.Text(\"Hello, world!\");",
                 "ImGui.SliderFloat(\"float\",",
